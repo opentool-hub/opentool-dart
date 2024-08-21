@@ -10,8 +10,12 @@ FunctionModel _$FunctionModelFromJson(Map<String, dynamic> json) =>
     FunctionModel(
       name: json['name'] as String,
       description: json['description'] as String,
-      parameters:
-          Parameters.fromJson(json['parameters'] as Map<String, dynamic>),
+      parameters: (json['parameters'] as List<dynamic>)
+          .map((e) => Parameter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      return_: json['return'] == null
+          ? null
+          : Return.fromJson(json['return'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
@@ -19,4 +23,5 @@ Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
       'name': instance.name,
       'description': instance.description,
       'parameters': instance.parameters,
+      'return': instance.return_,
     };

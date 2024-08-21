@@ -1,11 +1,13 @@
 # opentool_dart
-An OpenTool JSON Spec Parser for dart.
+An OpenTool JSON Spec Parser for dart with ToolDrivers.
 
 Inspired by OpenAPI, OpenRPC, and OpenAI `function calling` example.
 
 ## Features
 
-- Load OpenTool json file, and convert to dart object.
+- Load OpenTool json file, and convert to dart object. See [OpenTool Specification](opentool-specification-en.md).
+- ToolDriver abstract class for LLM function calling support.
+- Support JSON Specification/Driver: [OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart), [OpenRPC/JsonRPC](https://github.com/djbird2046/openrpc_dart), [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
 
 ## Usage
 
