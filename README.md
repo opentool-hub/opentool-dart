@@ -1,4 +1,7 @@
 # opentool_dart
+
+English · [中文](README-zh_CN.md)
+
 An OpenTool JSON Spec Parser for dart with ToolDrivers.
 
 Inspired by OpenAPI, OpenRPC, and OpenAI `function calling` example.
