@@ -60,12 +60,27 @@ class ModbusParams {
   });
 }
 
-class ModbusResponse {
-  late int statusCode;
-  late String body;
-  ModbusResponse({required this.statusCode, required this.body});
+class ModbusResponseElement {
+  String name;
+  dynamic value;
+  String? description;
 
-  Map<String, dynamic> toJson() => {'statusCode': statusCode, 'body': body};
+  ModbusResponseElement({required this.name, required this.value, this.description});
+  
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'value': value,
+    'description': description
+  };
+}
+
+class ModbusResponse {
+  int statusCode;
+  ModbusResponseElement? element;
+  String message;
+  ModbusResponse({required this.statusCode, this.element, required this.message});
+
+  Map<String, dynamic> toJson() => {'statusCode': statusCode, 'element': element==null?null: element!.toJson(), 'message': message};
 }
 
 Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modbusNet, ModbusSerial? modbusSerial}) {
@@ -97,6 +112,7 @@ Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modb
   Completer<ModbusResponse> completer = Completer();
   int? statusCode = null;
   String? message = null;
+  ModbusResponseElement? element = null;
 
   Function(ModbusElement)? onUpdate;
   ModbusElement modbusElement;
@@ -104,8 +120,9 @@ Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modb
   if (modbusParams.modbusElementParams.methodType == ModbusMethodType.read) {
     onUpdate = (ModbusElement modbusElement) {
       message = modbusElement.toString();
+      element = ModbusResponseElement(name: modbusElement.name, value: modbusElement.value, description: modbusElement.description);
       if (statusCode != null && message != null) {
-        completer.complete(ModbusResponse(statusCode: statusCode!, body: message!));
+        completer.complete(ModbusResponse(statusCode: statusCode!, element: element!, message: message!));
       }
     };
     modbusElement = buildModbusElement(modbusParams.modbusElementParams, onUpdate);
@@ -118,19 +135,16 @@ Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modb
   modbusClient.send(modbusElementRequest).then((ModbusResponseCode modbusResponseCode) {
     statusCode = modbusResponseCode.code;
     if (modbusParams.modbusElementParams.methodType == ModbusMethodType.read) {
-      /// Read when message not null
+      /// Read when element not null
       if (statusCode != null && message != null) {
-        completer
-            .complete(ModbusResponse(statusCode: statusCode!, body: message!));
+        completer.complete(ModbusResponse(statusCode: statusCode!, element: element!, message: message!));
       }
       if (statusCode != 0x00) {
         /// If read error, return error info.
-        completer.complete(ModbusResponse(
-            statusCode: statusCode!, body: modbusResponseCode.name));
+        completer.complete(ModbusResponse(statusCode: statusCode!, message: modbusResponseCode.name));
       }
     } else {
-      completer.complete(ModbusResponse(
-          statusCode: statusCode!, body: modbusResponseCode.name));
+      completer.complete(ModbusResponse(statusCode: statusCode!, message: modbusResponseCode.name));
     }
   });
 

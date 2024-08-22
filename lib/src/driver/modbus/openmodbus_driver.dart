@@ -38,9 +38,7 @@ class OpenModbusDriver extends ot.ToolDriver {
 
   @override
   Future<ot.ToolReturn> call(ot.FunctionCall functionCall) async {
-    FunctionModel targetFunction = openModbus.functions.firstWhere(
-        (FunctionModel functionModel) =>
-            functionModel.name == functionCall.name);
+    FunctionModel targetFunction = openModbus.functions.firstWhere((functionModel) => functionModel.name == functionCall.name);
     ModbusParams modbusParams = _convertToModbusParams(targetFunction);
 
     ModbusNet? modbusNet;
@@ -51,12 +49,14 @@ class OpenModbusDriver extends ot.ToolDriver {
       modbusNet = ModbusNet(url: netConfig.url, port: netConfig.port);
     } else {
       SerialConfig serialConfig = openModbus.server.config as SerialConfig;
-      modbusSerial = ModbusSerial(
-          port: serialConfig.port, baudRate: serialConfig.baudRate);
+      modbusSerial = ModbusSerial(port: serialConfig.port, baudRate: serialConfig.baudRate);
     }
 
-    ModbusResponse modbusResponse = await requestModbus(modbusParams,
-        modbusNet: modbusNet, modbusSerial: modbusSerial);
+    ModbusResponse modbusResponse = await requestModbus(
+        modbusParams,
+        modbusNet: modbusNet,
+        modbusSerial: modbusSerial
+    );
 
     return ot.ToolReturn(id: functionCall.id, result: modbusResponse.toJson());
   }
