@@ -4,11 +4,28 @@ import 'package:modbus_client_udp/modbus_client_udp.dart';
 import 'package:modbus_client/modbus_client.dart';
 import 'package:modbus_client_tcp/modbus_client_tcp.dart';
 
-enum ModbusServerType { tcp, udp, rtu, ascii }
+class ServerType {
+  static const String TCP = "tcp";
+  static const String UDP = "udp";
+  static const String RTU = "rtu";
+  static const String ASCII = "ascii";
+}
 
-enum ModbusDataType { bool, int16, int32, uint16, uint32, string }
+class ModbusDataType {
+  static const String BOOL = "bool";
+  static const String INT16 = "int16";
+  static const String INT32 = "int32";
+  static const String UINT16 = "uint16";
+  static const String UINT32 = "uint32";
+  static const String STRING = "string";
+}
 
-enum ModbusMethodType { read, write }
+class MethodType {
+  static const String READ = "read";
+  static const String WRITE = "write";
+}
+
+enum ElementType { discreteInput, coil, inputRegister, holdingRegister}
 
 class ModbusNet {
   late String url;
@@ -25,19 +42,19 @@ class ModbusSerial {
 class ModbusElementParams {
   String name;
   String description;
-  ModbusElementType modbusElementType;
+  ElementType elementType;
   int address;
   int? byteCount;
-  ModbusMethodType methodType;
+  String methodType;
   dynamic value;
-  ModbusDataType modbusDataType;
+  String modbusDataType;
   String uom;
   double multiplier;
 
   ModbusElementParams({
     required this.name,
     required this.description,
-    required this.modbusElementType,
+    required this.elementType,
     required this.address,
     this.byteCount,
     required this.methodType,
@@ -49,7 +66,7 @@ class ModbusElementParams {
 }
 
 class ModbusParams {
-  ModbusServerType serverType;
+  String serverType;
   int slaveId;
   ModbusElementParams modbusElementParams;
 
@@ -60,43 +77,29 @@ class ModbusParams {
   });
 }
 
-class ModbusResponseElement {
-  String name;
-  dynamic value;
-  String? description;
-
-  ModbusResponseElement({required this.name, required this.value, this.description});
-  
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'value': value,
-    'description': description
-  };
-}
-
 class ModbusResponse {
   int statusCode;
-  ModbusResponseElement? element;
+  dynamic value;
   String message;
-  ModbusResponse({required this.statusCode, this.element, required this.message});
+  ModbusResponse({required this.statusCode, this.value, required this.message});
 
-  Map<String, dynamic> toJson() => {'statusCode': statusCode, 'element': element==null?null: element!.toJson(), 'message': message};
+  Map<String, dynamic> toJson() => {'statusCode': statusCode, 'value': value, 'message': message};
 }
 
 Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modbusNet, ModbusSerial? modbusSerial}) {
   ModbusClient modbusClient;
-  if (modbusParams.serverType == ModbusServerType.tcp) {
+  if (modbusParams.serverType == ServerType.TCP) {
     modbusClient = ModbusClientTcp(
         modbusNet!.url,
         serverPort: modbusNet.port,
         unitId: modbusParams.slaveId
     );
-  } else if (modbusParams.serverType == ModbusServerType.rtu) {
+  } else if (modbusParams.serverType == ServerType.RTU) {
     modbusClient = ModbusClientSerialRtu(
       portName: modbusSerial!.port,
       baudRate: _convertToSerialBaudRate(modbusSerial.baudRate)
     );
-  } else if (modbusParams.serverType == ModbusServerType.ascii) {
+  } else if (modbusParams.serverType == ServerType.ASCII) {
     modbusClient = ModbusClientSerialAscii(
       portName: modbusSerial!.port,
       baudRate: _convertToSerialBaudRate(modbusSerial.baudRate)
@@ -112,17 +115,17 @@ Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modb
   Completer<ModbusResponse> completer = Completer();
   int? statusCode = null;
   String? message = null;
-  ModbusResponseElement? element = null;
+  dynamic value = null;
 
   Function(ModbusElement)? onUpdate;
   ModbusElement modbusElement;
   ModbusElementRequest modbusElementRequest;
-  if (modbusParams.modbusElementParams.methodType == ModbusMethodType.read) {
+  if (modbusParams.modbusElementParams.methodType == MethodType.READ) {
     onUpdate = (ModbusElement modbusElement) {
       message = modbusElement.toString();
-      element = ModbusResponseElement(name: modbusElement.name, value: modbusElement.value, description: modbusElement.description);
+      value = modbusElement.value;
       if (statusCode != null && message != null) {
-        completer.complete(ModbusResponse(statusCode: statusCode!, element: element!, message: message!));
+        completer.complete(ModbusResponse(statusCode: statusCode!, value: value, message: message!));
       }
     };
     modbusElement = buildModbusElement(modbusParams.modbusElementParams, onUpdate);
@@ -134,10 +137,10 @@ Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modb
 
   modbusClient.send(modbusElementRequest).then((ModbusResponseCode modbusResponseCode) {
     statusCode = modbusResponseCode.code;
-    if (modbusParams.modbusElementParams.methodType == ModbusMethodType.read) {
+    if (modbusParams.modbusElementParams.methodType == MethodType.READ) {
       /// Read when element not null
       if (statusCode != null && message != null) {
-        completer.complete(ModbusResponse(statusCode: statusCode!, element: element!, message: message!));
+        completer.complete(ModbusResponse(statusCode: statusCode!, value: value, message: message!));
       }
       if (statusCode != 0x00) {
         /// If read error, return error info.
@@ -152,62 +155,63 @@ Future<ModbusResponse> requestModbus(ModbusParams modbusParams, {ModbusNet? modb
 }
 
 ModbusElement buildModbusElement(ModbusElementParams modbusElementParams, Function(ModbusElement)? onUpdate) {
+  ModbusElementType modbusElementType = _convertToModbusElementType(modbusElementParams.elementType);
   switch (modbusElementParams.modbusDataType) {
-    case ModbusDataType.bool:
+    case ModbusDataType.BOOL:
       return ModbusBitElement(
         name: modbusElementParams.name,
         description: modbusElementParams.description,
         address: modbusElementParams.address,
-        type: modbusElementParams.modbusElementType,
+        type: modbusElementType,
         onUpdate: onUpdate
       );
-    case ModbusDataType.int16:
+    case ModbusDataType.INT16:
       return ModbusInt16Register(
         name: modbusElementParams.name,
         description: modbusElementParams.description,
         address: modbusElementParams.address,
-        type: modbusElementParams.modbusElementType,
+        type: modbusElementType,
         onUpdate: onUpdate,
         uom: modbusElementParams.uom,
         multiplier: modbusElementParams.multiplier
       );
-    case ModbusDataType.int32:
+    case ModbusDataType.INT32:
       return ModbusInt32Register(
         name: modbusElementParams.name,
         description: modbusElementParams.description,
         address: modbusElementParams.address,
-        type: modbusElementParams.modbusElementType,
+        type: modbusElementType,
         onUpdate: onUpdate,
         uom: modbusElementParams.uom,
         multiplier: modbusElementParams.multiplier
       );
-    case ModbusDataType.uint16:
+    case ModbusDataType.UINT16:
       return ModbusUint16Register(
         name: modbusElementParams.name,
         description: modbusElementParams.description,
         address: modbusElementParams.address,
-        type: modbusElementParams.modbusElementType,
+        type: modbusElementType,
         onUpdate: onUpdate,
         uom: modbusElementParams.uom,
         multiplier: modbusElementParams.multiplier
       );
-    case ModbusDataType.uint32:
+    case ModbusDataType.UINT32:
       return ModbusUint32Register(
         name: modbusElementParams.name,
         description: modbusElementParams.description,
         address: modbusElementParams.address,
-        type: modbusElementParams.modbusElementType,
+        type: modbusElementType,
         onUpdate: onUpdate,
         uom: modbusElementParams.uom,
         multiplier: modbusElementParams.multiplier
       );
-    case ModbusDataType.string:
+    default :
       return ModbusBytesRegister(
         name: modbusElementParams.name,
         description: modbusElementParams.description,
         address: modbusElementParams.address,
         byteCount: modbusElementParams.byteCount!,
-        type: modbusElementParams.modbusElementType,
+        type: modbusElementType,
         onUpdate: onUpdate
       );
   }
@@ -218,4 +222,13 @@ SerialBaudRate _convertToSerialBaudRate(int number) {
     (e) => e.toString() == 'SerialBaudRate.b$number',
     orElse: () => throw ArgumentError('Unrecognized enum value: $number')
   );
+}
+
+ModbusElementType _convertToModbusElementType(ElementType elementType) {
+  switch(elementType) {
+    case ElementType.discreteInput: return ModbusElementType.discreteInput;
+    case ElementType.coil: return ModbusElementType.coil;
+    case ElementType.inputRegister: return ModbusElementType.inputRegister;
+    case ElementType.holdingRegister: return ModbusElementType.holdingRegister;
+  }
 }

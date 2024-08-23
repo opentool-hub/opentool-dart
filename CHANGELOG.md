@@ -1,3 +1,7 @@
+## 0.2.1
+
+- adapt openmodbus_dart
+
 ## 0.2.0
 
 - refactor referent OpenAPI3 and OpenRPC
