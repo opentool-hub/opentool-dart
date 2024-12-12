@@ -1,3 +1,7 @@
+## 0.2.2
+
+- add FunctionNotSupportedException
+
 ## 0.2.1
 
 - adapt openmodbus_dart

@@ -1,6 +1,7 @@
 library;
 
 export 'src/driver/model.dart';
+export 'src/driver/exception.dart';
 export 'src/driver/opentool_driver.dart';
 export 'src/driver/tool_driver.dart';
 export 'src/driver/openrpc_driver.dart';
