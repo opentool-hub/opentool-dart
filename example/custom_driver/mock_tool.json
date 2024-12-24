@@ -95,6 +95,12 @@
         }
       ],
       "return": null
+    },
+    {
+      "name": "run",
+      "description": "trigger runing",
+      "parameters": [],
+      "return": null
     }
   ],
   "schemas": {

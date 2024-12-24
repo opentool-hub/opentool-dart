@@ -29,6 +29,14 @@ class MockDriver extends OpenToolDriver {
       int id = functionCall.parameters["id"] as int;
       mockAPI.delete(id);
       return ToolReturn(id: functionCall.id, result: {"result": "Delete successfully."});
+    } else if(functionName == "run") {
+      try {
+        mockAPI.run();
+      } catch(e) {
+        /// Simulate to throw a fatal error.
+        throw ToolBreakException(e.toString());
+      }
+      return ToolReturn(id: functionCall.id, result: {"result": "Delete successfully."});
     } else {
       return ToolReturn(id: functionCall.id, result: FunctionNotSupportedException(functionName: functionName).toJson());
     }

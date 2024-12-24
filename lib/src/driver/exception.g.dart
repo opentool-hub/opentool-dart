@@ -12,3 +12,9 @@ Map<String, dynamic> _$FunctionNotSupportedExceptionToJson(
       'code': instance.code,
       'message': instance.message,
     };
+
+Map<String, dynamic> _$ToolBreakExceptionToJson(ToolBreakException instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'message': instance.message,
+    };

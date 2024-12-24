@@ -1,3 +1,7 @@
+## 0.2.4
+
+- add ToolBreakException
+
 ## 0.2.3
 
 - move opentool object from OpenToolDriver constructor to bind()

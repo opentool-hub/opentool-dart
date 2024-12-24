@@ -21,4 +21,8 @@ class MockUtil {
   void delete(int id) {
     storage.removeAt(id);
   }
+
+  void run() {
+    throw Exception("A fatal error to break this tool.");
+  }
 }

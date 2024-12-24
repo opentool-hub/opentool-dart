@@ -20,3 +20,17 @@ class FunctionNotSupportedException implements Exception {
   @override
   String toString() => jsonEncode(this.toJson());
 }
+
+/// When client catch `ToolBreakException`. The client should be stopped calling.
+@JsonSerializable(createFactory: false)
+class ToolBreakException implements Exception {
+  final int code = 500;
+  late String? message;
+
+  ToolBreakException(this.message);
+
+  Map<String, dynamic> toJson() => _$ToolBreakExceptionToJson(this);
+
+  @override
+  String toString() => jsonEncode(this.toJson());
+}
