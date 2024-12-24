@@ -5,7 +5,6 @@ import 'mock_util.dart';
 
 class MockDriver extends OpenToolDriver {
   MockUtil mockAPI = MockUtil();
-  MockDriver(super.openTool);
 
   @override
   Future<ToolReturn> call(FunctionCall functionCall) async{

@@ -1,9 +1,12 @@
 import '../../opentool_dart.dart';
 
 abstract class OpenToolDriver extends ToolDriver {
-  OpenTool openTool;
+  late OpenTool openTool;
 
-  OpenToolDriver(this.openTool);
+  OpenToolDriver bind(OpenTool openTool) {
+    this.openTool = openTool;
+    return this;
+  }
 
   @override
   List<FunctionModel> parse() {

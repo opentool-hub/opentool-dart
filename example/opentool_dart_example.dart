@@ -12,6 +12,7 @@ void main() async {
     String jsonPath = "$currentWorkingDirectory${Platform.pathSeparator}example${Platform.pathSeparator}custom_driver${Platform.pathSeparator}$jsonFileName";
     OpenToolLoader openToolLoader = OpenToolLoader();
     OpenTool openTool = await openToolLoader.loadFromFile(jsonPath);
+    print("openTool: ${openTool.toJson()}");
     print("title: ${openTool.info.title}");
   });
 }

@@ -9,8 +9,8 @@ Future<void> main() async {
   String jsonFileName = "mock_tool.json";
   String jsonPath = "${Directory.current.path}${Platform.pathSeparator}example${Platform.pathSeparator}custom_driver${Platform.pathSeparator}$jsonFileName";
   OpenTool openTool = await OpenToolLoader().loadFromFile(jsonPath);
-  MockDriver mockDriver = MockDriver(openTool);
+  OpenToolDriver opentoolDriver = MockDriver().bind(openTool);
 
-  ToolReturn toolReturn = await mockDriver.call(functionCall);
+  ToolReturn toolReturn = await opentoolDriver.call(functionCall);
   print(toolReturn.toJson());
 }

@@ -1,3 +1,7 @@
+## 0.2.3
+
+- move opentool object from OpenToolDriver constructor to bind()
+
 ## 0.2.2
 
 - add FunctionNotSupportedException
