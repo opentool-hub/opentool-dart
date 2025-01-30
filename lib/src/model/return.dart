@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:opentool_dart/src/model/schema.dart';
+import 'schema.dart';
 
 part 'return.g.dart';
 

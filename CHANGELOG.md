@@ -1,3 +1,7 @@
+## 0.2.5
+
+- tiny issue fixed
+
 ## 0.2.4
 
 - add ToolBreakException

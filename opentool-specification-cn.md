@@ -21,12 +21,12 @@ OpenTool面向一般性的程序调用描述，并且配合ToolDriver使用，�
 
 ### OpenTool对象
 
-| 字段        | 类型             | 描述                          |
-|-----------|----------------|-----------------------------|
-| opentool  | `string`       | **必填**。当前OpenTool的JSON文档版本。 |
-| info      | Info对象         | **必填**。描述当前OpenTool文档的信息。   |
-| functions | \[Function对象\] | **必填**。描述当前工具调用支持的函数信息。     |
-| schemas   | Schema对象       | 描述输入输出的格式                   |
+| 字段        | 类型                      | 描述                          |
+|-----------|-------------------------|-----------------------------|
+| opentool  | `string`                | **必填**。当前OpenTool的JSON文档版本。 |
+| info      | Info对象                  | **必填**。描述当前OpenTool文档的信息。   |
+| functions | \[Function对象\]          | **必填**。描述当前工具调用支持的函数信息。     |
+| schemas   | Map<`string`, Schema对象> | 描述`schema`名称及其输入输出的格式       |
 
 ### Info对象
 
@@ -43,7 +43,7 @@ OpenTool面向一般性的程序调用描述，并且配合ToolDriver使用，�
 | name        | `string`        | **必填**。函数的名称，只包含a-z、A-Z、0-9、-、_符号，且不超过64个字符。参考自OpenAI的function.name描述：`The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.` |
 | description | `string`        | **必填**。函数的描述，用于人类和大语言模型阅读当前function的作用。                                                                                                                                                               |
 | parameters  | \[Parameter对象\] | **必填**。函数的传入参数的描述。                                                                                                                                                                                    |
-| return      | \[Return对象\]    | 函数返回参数的描述。如果为`null`，则表示无返回值                                                                                                                                                                           |
+| return      | Return对象        | 函数返回参数的描述。如果为`null`，则表示无返回值                                                                                                                                                                           |
 
 ### Parameter对象
 

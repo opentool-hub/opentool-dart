@@ -1,6 +1,6 @@
 name: opentool_dart
 description: An OpenTool JSON Spec Parser for dart with ToolDrivers.
-version: 0.2.4
+version: 0.2.5
 repository: https://github.com/LiteVar/opentool_dart
 
 environment:

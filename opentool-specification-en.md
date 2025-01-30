@@ -21,12 +21,12 @@ OpenTool is designed for general-purpose program invocation descriptions and is 
 
 ### OpenTool Object
 
-| Field     | Type                | Description                                                                                  |
-|-----------|---------------------|----------------------------------------------------------------------------------------------|
-| opentool  | `string`            | **Required**. The version of the current OpenTool JSON document.                             |
-| info      | Info Object         | **Required**. Information describing the current OpenTool document.                          |
-| functions | \[Function Object\] | **Required**. Information describing the functions supported by the current tool invocation. |
-| schemas   | Schema Object       | Describes the format of input and output.                                                    |
+| Field     | Type                         | Description                                                                                  |
+|-----------|------------------------------|----------------------------------------------------------------------------------------------|
+| opentool  | `string`                     | **Required**. The version of the current OpenTool JSON document.                             |
+| info      | Info Object                  | **Required**. Information describing the current OpenTool document.                          |
+| functions | \[Function Object\]          | **Required**. Information describing the functions supported by the current tool invocation. |
+| schemas   | Map<`string`, Schema Object> | Describes `schema` name and the format of input and output.                                  |
 
 ### Info Object
 
@@ -43,7 +43,7 @@ OpenTool is designed for general-purpose program invocation descriptions and is 
 | name        | `string`             | **Required**. The name of the function, containing only a-z, A-Z, 0-9, -, and _ characters, and not exceeding 64 characters. Referenced from OpenAI's function.name description: `The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.` |
 | description | `string`             | **Required**. The description of the function, used by humans and large language models to understand the purpose of the current function.                                                                                                                                                                       |
 | parameters  | \[Parameter Object\] | **Required**. The description of the input parameters of the function.                                                                                                                                                                                                                                           |
-| return      | \[Return Object\]    | Description of the function's return parameters. If `null`, it indicates no return value.                                                                                                                                                                                                                        |
+| return      | Return Object        | Description of the function's return parameters. If `null`, it indicates no return value.                                                                                                                                                                                                                        |
 
 ### Parameter Object
 

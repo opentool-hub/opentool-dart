@@ -8,6 +8,8 @@ abstract class OpenToolDriver extends ToolDriver {
     return this;
   }
 
+  OpenTool getOpenTool() => openTool;
+
   @override
   List<FunctionModel> parse() {
     return openTool.functions;
