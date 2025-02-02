@@ -2,7 +2,6 @@ import 'package:opentool_dart/opentool_dart.dart';
 
 import 'jsonrpc_http_util.dart';
 import 'package:openrpc_dart/openrpc_dart.dart';
-import '../openrpc_driver.dart';
 
 class JsonRPCDriver extends OpenRPCDriver {
   JsonRPCDriver(super.openRPC);

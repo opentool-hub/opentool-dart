@@ -1,0 +1,97 @@
+{
+  "opendyn": "1.0.0",
+  "info": {
+    "title": "dynamic library example",
+    "description": "dynamic library calling example",
+    "version": "1.0.0",
+    "callingConvention": "cdecl"
+  },
+  "functions": [
+    {
+      "name": "add",
+      "description": "Two integer numbers add operation.",
+      "parameters": [
+        {
+          "name": "a",
+          "description": "The first number in add operation.",
+          "schema": {
+            "type": "integer",
+            "cType": {
+              "type": "int",
+              "isPointer": false,
+              "isIn": true
+            }
+          }
+        },
+        {
+          "name": "b",
+          "description": "The Second number in add operation.",
+          "schema": {
+            "type": "integer",
+            "cType": {
+              "type": "int",
+              "isPointer": false,
+              "isIn": true
+            }
+          }
+        }
+      ],
+      "return": {
+        "name": "result",
+        "description": "add result",
+        "schema": {
+          "type": "integer",
+          "cType": {
+            "type": "int",
+            "isPointer": false,
+            "isIn": false
+          }
+        }
+      }
+    },
+    {
+      "name": "multiply",
+      "description": "Two double numbers multiply operation.",
+      "parameters": [
+        {
+          "name": "a",
+          "description": "The first double number in multiply operation.",
+          "schema": {
+            "type": "double",
+            "cType": {
+              "type": "float",
+              "isPointer": false
+            }
+          },
+          "isIn": true
+        },
+        {
+          "name": "b",
+          "description": "The second double number in multiply operation.",
+          "schema": {
+            "type": "double",
+            "cType": {
+              "type": "float",
+              "isPointer": false
+            }
+          },
+          "isIn": true
+        }
+      ],
+      "return": {
+        "name": "result",
+        "description": "multiply result",
+        "schema": {
+          "type": "double",
+          "cType": {
+            "type": "float",
+            "isPointer": false
+          }
+        }
+      }
+    }
+  ],
+  "code": {
+    "0": "Success"
+  }
+}
