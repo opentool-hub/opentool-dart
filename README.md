@@ -32,3 +32,9 @@ Future<void> main() async {
   OpenTool openTool = await openToolLoader.loadFromFile(jsonPath); 
 }
 ```
+
+## Note
+
+### Serial Port
+
+- The lib `libserialport` need environmentVariable `LIBSERIALPORT_PATH` to be set to the path of the `libs/serial_port/windows/libserialport.dll`(Windows) or `libs/serial_port/macos/libserialport.dylib`(macOS)

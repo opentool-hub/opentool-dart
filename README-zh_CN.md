@@ -32,3 +32,9 @@ Future<void> main() async {
   OpenTool openTool = await openToolLoader.loadFromFile(jsonPath); 
 }
 ```
+
+## 注意
+
+### 串口连接
+
+- 串口连接的库 `libserialport` 依赖环境变量 `LIBSERIALPORT_PATH`，设置为文件 `libs/serial_port/windows/libserialport.dll`(Windows) or `libs/serial_port/macos/libserialport.dylib`(macOS)
