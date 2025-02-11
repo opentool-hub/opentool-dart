@@ -89,6 +89,48 @@
           }
         }
       }
+    },
+    {
+      "name": "swap_and_sum",
+      "description": "Swap two integers and return pointer to their sum.",
+      "parameters": [
+        {
+          "name": "a",
+          "description": "Pointer to the first integer to be swapped.",
+          "schema": {
+            "type": "integer",
+            "cType": {
+              "type": "int",
+              "isPointer": true,
+              "isIn": true
+            }
+          }
+        },
+        {
+          "name": "b",
+          "description": "Pointer to the second integer to be swapped.",
+          "schema": {
+            "type": "integer",
+            "cType": {
+              "type": "int",
+              "isPointer": true,
+              "isIn": true
+            }
+          }
+        }
+      ],
+      "return": {
+        "name": "result",
+        "description": "Pointer to the sum of the swapped numbers",
+        "schema": {
+          "type": "integer",
+          "cType": {
+            "type": "int",
+            "isPointer": true,
+            "isIn": false
+          }
+        }
+      }
     }
   ],
   "code": {
