@@ -11,16 +11,20 @@ Future<Map<String, dynamic>> runDynFunction(FunctionInfo functionInfo) async {
     final dynfilePath = functionInfo.dynFile.path;
     final funcName = functionInfo.name;
     final params = jsonEncode([
-      for (var param in functionInfo.parameterInfoList.where((p) => p.isIn))
-        {'type': param.cDataType, 'is_pointer': param.isPointer, 'value': param.value}
+      for (var param in functionInfo.parameterInfoList)
+        {
+          'name': param.name,
+          'data_type': param.cDataType,
+          'is_pointer': param.isPointer,
+          'is_in': param.isIn,
+          'value': param.value
+        }
     ]);
-    final returnInfo = functionInfo.parameterInfoList.where((p) => !p.isIn).firstOrNull;
-    final returnType = jsonEncode({
-      'type': returnInfo?.cDataType ?? "int",
-      'is_pointer': returnInfo?.isPointer ?? true
-    });
 
-    // print("python executablePath: $executablePath runDynFunction: ${functionInfo.name}, params: $params, returnType: $returnType");
+    final returnType = jsonEncode({
+      'data_type': "int",
+      'is_pointer': true
+    });
 
     final process = await Process.start(executablePath, [
       '--lib_path=$dynfilePath',

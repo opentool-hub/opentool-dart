@@ -101,10 +101,10 @@
             "type": "integer",
             "cType": {
               "type": "int",
-              "isPointer": true,
-              "isIn": true
+              "isPointer": true
             }
-          }
+          },
+          "isIn": true
         },
         {
           "name": "b",
@@ -113,10 +113,10 @@
             "type": "integer",
             "cType": {
               "type": "int",
-              "isPointer": true,
-              "isIn": true
+              "isPointer": true
             }
-          }
+          },
+          "isIn": false
         }
       ],
       "return": {
