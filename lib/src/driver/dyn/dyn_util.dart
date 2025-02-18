@@ -23,7 +23,7 @@ Future<Map<String, dynamic>> runDynFunction(FunctionInfo functionInfo) async {
 
     final returnType = jsonEncode({
       'data_type': "int",
-      'is_pointer': true
+      'is_pointer': false,
     });
 
     final process = await Process.start(executablePath, [
