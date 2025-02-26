@@ -1,3 +1,7 @@
+## 0.3.0
+- add serial port driver supported
+- add dynamic libs driver supported
+
 ## 0.2.5
 
 - tiny issue fixed
