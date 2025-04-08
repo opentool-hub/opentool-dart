@@ -82,19 +82,18 @@ Future<JsonRPCHttpResponse> requestJsonRPCHttpAPI(
 
   if (httpAPIResponse.statusCode == 200) {
     Map<String, dynamic> bodyJson = jsonDecode(httpAPIResponse.body);
-    JsonRPCHttpResponseBody jsonRPCHttpResponseBody =
-        JsonRPCHttpResponseBody.fromJson(bodyJson);
+    JsonRPCHttpResponseBody jsonRPCHttpResponseBody = JsonRPCHttpResponseBody.fromJson(bodyJson);
     if (jsonRPCHttpResponseBody.error != null) {
       return JsonRPCHttpResponse(
-          statusCode: jsonRPCHttpResponseBody.error!.code,
-          body: jsonRPCHttpResponseBody.error!.message);
+        statusCode: jsonRPCHttpResponseBody.error!.code,
+        body: jsonRPCHttpResponseBody.error!.message);
     } else {
       return JsonRPCHttpResponse(
-          statusCode: httpAPIResponse.statusCode,
-          body: jsonEncode(jsonRPCHttpResponseBody.result!));
+        statusCode: httpAPIResponse.statusCode,
+        body: jsonEncode(jsonRPCHttpResponseBody.result!)
+      );
     }
   } else {
-    return JsonRPCHttpResponse(
-        statusCode: httpAPIResponse.statusCode, body: httpAPIResponse.body);
+    return JsonRPCHttpResponse(statusCode: httpAPIResponse.statusCode, body: httpAPIResponse.body);
   }
 }

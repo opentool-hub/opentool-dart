@@ -25,37 +25,32 @@ class SerialPortDriver extends ToolDriver {
         int dsr = functionCall.parameters["dsr"] ?? 1;
         int xonXoff = functionCall.parameters["xonXoff"] ?? 0;
         bool openStatus = serialUtil.openPort(name, baudRate: baudRate,
-            bits: bits,
-            parity: parity,
-            stopBits: stopBits,
-            rts: rts,
-            cts: cts,
-            dtr: dtr,
-            dsr: dsr,
-            xonXoff: xonXoff);
-        return ToolReturn(
-            id: functionCall.id, result: {"openStatus": openStatus});
+          bits: bits,
+          parity: parity,
+          stopBits: stopBits,
+          rts: rts,
+          cts: cts,
+          dtr: dtr,
+          dsr: dsr,
+          xonXoff: xonXoff
+        );
+        return ToolReturn(id: functionCall.id, result: {"openStatus": openStatus});
       } else if (functionCall.name == "writeCommand") {
         String command = functionCall.parameters["command"];
         int timeout = functionCall.parameters["timeout"] ?? 1000;
         int byteWritenCount = serialUtil.writeCommand(
             command, timeout: timeout);
-        return ToolReturn(
-            id: functionCall.id, result: {"byteWritenCount": byteWritenCount});
+        return ToolReturn(id: functionCall.id, result: {"byteWritenCount": byteWritenCount});
       } else if (functionCall.name == "readData") {
         int bufferBytes = functionCall.parameters["bufferBytes"] ?? 10000;
         int timeout = functionCall.parameters["timeout"] ?? -1;
-        String data = serialUtil.readData(
-            bufferBytes: bufferBytes, timeout: timeout);
+        String data = serialUtil.readData(bufferBytes: bufferBytes, timeout: timeout);
         return ToolReturn(id: functionCall.id, result: {"data": data});
       } else if (functionCall.name == "closePort") {
         bool closeStatus = serialUtil.closePort();
-        return ToolReturn(
-            id: functionCall.id, result: {"close status": closeStatus});
+        return ToolReturn(id: functionCall.id, result: {"close status": closeStatus});
       } else {
-        return ToolReturn(id: functionCall.id,
-            result: FunctionNotSupportedException(
-                functionName: functionCall.name).toJson());
+        return ToolReturn(id: functionCall.id, result: FunctionNotSupportedException(functionName: functionCall.name).toJson());
       }
     } catch (e) {
       return ToolReturn(id: functionCall.id, result: {"error": e.toString()});

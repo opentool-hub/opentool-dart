@@ -1,5 +1,4 @@
 import 'package:opentool_dart/opentool_dart.dart';
-
 import 'jsonrpc_http_util.dart';
 import 'package:openrpc_dart/openrpc_dart.dart';
 
@@ -9,15 +8,13 @@ class JsonRPCDriver extends OpenRPCDriver {
   @override
   Future<ToolReturn> call(FunctionCall functionCall) async {
     JsonRPCHttpRequestBody jsonRPCHttpRequestBody = JsonRPCHttpRequestBody(
-        method: functionCall.name,
-        params: functionCall.parameters,
-        id: functionCall.id);
-    JsonRPCHttpRequest jsonRPCHttpRequest = JsonRPCHttpRequest(
-        url: openRPC.servers!.first.url, body: jsonRPCHttpRequestBody);
-    JsonRPCHttpResponse jsonRPCHttpResponse =
-        await requestJsonRPCHttpAPI(jsonRPCHttpRequest);
-    return ToolReturn(
-        id: functionCall.id, result: jsonRPCHttpResponse.toJson());
+      method: functionCall.name,
+      params: functionCall.parameters,
+      id: functionCall.id
+    );
+    JsonRPCHttpRequest jsonRPCHttpRequest = JsonRPCHttpRequest(url: openRPC.servers!.first.url, body: jsonRPCHttpRequestBody);
+    JsonRPCHttpResponse jsonRPCHttpResponse = await requestJsonRPCHttpAPI(jsonRPCHttpRequest);
+    return ToolReturn(id: functionCall.id, result: jsonRPCHttpResponse.toJson());
   }
 
   @override

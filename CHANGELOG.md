@@ -1,3 +1,6 @@
+## 0.4.0
+- add MCP stdio driver
+
 ## 0.3.0
 - add serial port driver supported
 - add dynamic libs driver supported

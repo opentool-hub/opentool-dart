@@ -11,6 +11,8 @@ export 'src/driver/modbus/openmodbus_driver.dart';
 export 'src/driver/modbus/modbus_util.dart';
 export 'src/driver/dyn/opendyn_driver.dart';
 export 'src/driver/seral_port/serial_port_driver.dart';
+export 'src/driver/mcp/stdio/mcp_stdio_driver.dart';
+export 'src/driver/mcp/stdio/openmcp.dart';
 export 'src/model/function_model.dart';
 export 'src/model/info.dart';
 export 'src/model/open_tool.dart';

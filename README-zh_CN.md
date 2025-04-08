@@ -10,7 +10,13 @@
 
 - 加载 OpenTool JSON 文件，并转换为 Dart 对象。 见 [OpenTool规范](opentool-specification-cn.md).
 - 提供用于支持 LLM 函数调用的 ToolDriver 抽象类。
-- 支持的JSON规范/驱动：[OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart), [OpenRPC/JsonRPC](https://github.com/djbird2046/openrpc_dart), [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
+- 支持的JSON规范/驱动：
+  - HTTP: [OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart)
+  - JSON-RPC: [OpenRPC/JSON-RPC](https://github.com/djbird2046/openrpc_dart)
+  - Modbus: [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
+  - dll/dylib: [OpenDyn](https://github.com/LiteVar/opendyn_dart)
+  - Serial Port
+  - MCP：stdio, [Tools](https://modelcontextprotocol.io/docs/concepts/tools)
 
 ## 用法
 

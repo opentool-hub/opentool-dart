@@ -1,5 +1,4 @@
 import 'package:opentool_dart/opentool_dart.dart';
-import 'package:opentool_dart/src/driver/exception.dart';
 
 import 'mock_util.dart';
 

@@ -10,7 +10,13 @@ Inspired by OpenAPI, OpenRPC, and OpenAI `function calling` example.
 
 - Load OpenTool json file, and convert to dart object. See [OpenTool Specification](opentool-specification-en.md).
 - ToolDriver abstract class for LLM function calling support.
-- Support JSON Specification/Driver: [OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart), [OpenRPC/JsonRPC](https://github.com/djbird2046/openrpc_dart), [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
+- Support JSON Specification/Driver: 
+  - HTTP: [OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart)
+  - JSON-RPC: [OpenRPC/JSON-RPC](https://github.com/djbird2046/openrpc_dart)
+  - Modbus: [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
+  - dll/dylib: [OpenDyn](https://github.com/LiteVar/opendyn_dart)
+  - Serial Port
+  - MCP：stdio, [Tools](https://modelcontextprotocol.io/docs/concepts/tools)
 
 ## Usage
 
