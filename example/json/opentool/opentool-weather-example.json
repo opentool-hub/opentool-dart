@@ -8,8 +8,9 @@
     {
       "name": "get_current_weather",
       "description": "Get the current weather",
-      "parameters": {
-        "currentWeatherInfo": {
+      "parameters": [
+        {
+          "name": "currentWeatherInfo",
           "schema": {
             "type": "object",
             "properties": {
@@ -35,20 +36,20 @@
           },
           "required": true
         }
-      },
+      ],
       "returns": {
-        "currentWeather": {
-          "schema": {
-            "type": "string"
-          }
+        "name": "currentWeather",
+        "schema": {
+          "type": "string"
         }
       }
     },
     {
       "name": "get_n_day_weather_forecast",
       "description": "Get an N-day weather forecast",
-      "parameters": {
-        "forecastWeatherInfo": {
+      "parameters": [
+        {
+          "name": "forecastWeatherInfo",
           "schema": {
             "type": "object",
             "properties": {
@@ -80,12 +81,11 @@
             }
           }
         }
-      },
+      ],
       "returns": {
-        "forecastWeather": {
-          "schema": {
-            "type": "string"
-          }
+        "name": "forecastWeather",
+        "schema": {
+          "type": "string"
         }
       }
     }
