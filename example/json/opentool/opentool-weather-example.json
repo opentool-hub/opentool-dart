@@ -15,26 +15,20 @@
             "type": "object",
             "properties": {
               "location": {
-                "schema": {
-                  "type": "string"
-                },
-                "description": "The city and state, e.g. San Francisco, CA",
-                "required": true
+                "type": "string",
+                "description": "The city and state, e.g. San Francisco, CA"
               },
               "format": {
-                "schema": {
-                  "type": "string"
-                },
+                "type": "string",
+                "description": "The temperature unit to use. Infer this from the users location.",
                 "enum": [
                   "celsius",
                   "fahrenheit"
-                ],
-                "description": "The temperature unit to use. Infer this from the users location.",
-                "required": true
+                ]
               }
-            }
-          },
-          "required": true
+            },
+            "required": ["location", "format"]
+          }
         }
       ],
       "returns": {
@@ -54,31 +48,23 @@
             "type": "object",
             "properties": {
               "location": {
-                "schema": {
-                  "type": "string"
-                },
-                "description": "The city and state, e.g. San Francisco, CA",
-                "required": true
+                "type": "string",
+                "description": "The city and state, e.g. San Francisco, CA"
               },
               "format": {
-                "schema": {
-                  "type": "string",
-                  "enum": [
-                    "celsius",
-                    "fahrenheit"
-                  ]
-                },
+                "type": "string",
                 "description": "The temperature unit to use. Infer this from the users location.",
-                "required": true
+                "enum": [
+                  "celsius",
+                  "fahrenheit"
+                ]
               },
               "num_days": {
-                "schema": {
-                  "type": "integer"
-                },
-                "description": "The number of days to forecast",
-                "required": true
+                "type": "integer",
+                "description": "The number of days to forecast"
               }
-            }
+            },
+            "required": ["location", "format", "num_days"]
           }
         }
       ],
