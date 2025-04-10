@@ -28,7 +28,8 @@
               }
             },
             "required": ["location", "format"]
-          }
+          },
+          "required": true
         }
       ],
       "returns": {
@@ -65,7 +66,8 @@
               }
             },
             "required": ["location", "format", "num_days"]
-          }
+          },
+          "required": true
         }
       ],
       "returns": {
