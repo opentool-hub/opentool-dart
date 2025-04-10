@@ -3,10 +3,10 @@ import 'schema.dart';
 
 part 'parameter.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Parameter {
   String name;
-  String? description;
+  @JsonKey(includeIfNull: false) String? description;
   Schema schema;
   bool required;
 

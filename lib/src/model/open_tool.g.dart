@@ -18,7 +18,9 @@ OpenTool _$OpenToolFromJson(Map<String, dynamic> json) => OpenTool(
 
 Map<String, dynamic> _$OpenToolToJson(OpenTool instance) => <String, dynamic>{
       'opentool': instance.opentool,
-      'info': instance.info,
-      'functions': instance.functions,
-      'schemas': instance.schemas,
+      'info': instance.info.toJson(),
+      'functions': instance.functions.map((e) => e.toJson()).toList(),
+      if (instance.schemas?.map((k, e) => MapEntry(k, e.toJson()))
+          case final value?)
+        'schemas': value,
     };

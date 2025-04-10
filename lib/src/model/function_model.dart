@@ -4,13 +4,13 @@ import 'return.dart';
 
 part 'function_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class FunctionModel {
   String name;
   String description;
   List<Parameter> parameters;
   @JsonKey(name: "return")
-  Return? return_;
+  @JsonKey(includeIfNull: false) Return? return_;
 
   FunctionModel({required this.name, required this.description, required this.parameters, this.return_});
 

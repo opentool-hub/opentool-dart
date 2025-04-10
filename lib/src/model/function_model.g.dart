@@ -22,6 +22,6 @@ Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
     <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
-      'parameters': instance.parameters,
-      'return': instance.return_,
+      'parameters': instance.parameters.map((e) => e.toJson()).toList(),
+      'return': instance.return_?.toJson(),
     };

@@ -3,10 +3,10 @@ import 'schema.dart';
 
 part 'return.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Return {
   String name;
-  String? description;
+  @JsonKey(includeIfNull: false) String? description;
   Schema schema;
 
   Return({required this.name, this.description, required this.schema});

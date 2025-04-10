@@ -11,15 +11,14 @@ class SchemaType {
   static const String OBJECT = "object";
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Schema {
   String type;  // data_type: boolean, integer, number, string, array, object
-  String? description;
-  Map<String, Schema>? properties;  // for object
-  Schema? items;  // for array
-  @JsonKey(name: "enum")
-  List<String>? enum_;// for enum
-  List<String>? required;
+  @JsonKey(includeIfNull: false) String? description;
+  @JsonKey(includeIfNull: false) Map<String, Schema>? properties;  // for object
+  @JsonKey(includeIfNull: false) Schema? items;  // for array
+  @JsonKey(name: "enum", includeIfNull: false) List<String>? enum_;// for enum
+  @JsonKey(includeIfNull: false) List<String>? required;
 
   Schema({required this.type, this.description, this.properties, this.items, this.enum_, this.required});
 

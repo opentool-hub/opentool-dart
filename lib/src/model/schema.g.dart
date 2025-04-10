@@ -23,9 +23,11 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) => Schema(
 
 Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
       'type': instance.type,
-      'description': instance.description,
-      'properties': instance.properties,
-      'items': instance.items,
-      'enum': instance.enum_,
-      'required': instance.required,
+      if (instance.description case final value?) 'description': value,
+      if (instance.properties?.map((k, e) => MapEntry(k, e.toJson()))
+          case final value?)
+        'properties': value,
+      if (instance.items?.toJson() case final value?) 'items': value,
+      if (instance.enum_ case final value?) 'enum': value,
+      if (instance.required case final value?) 'required': value,
     };

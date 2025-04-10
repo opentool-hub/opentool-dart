@@ -4,9 +4,9 @@ part 'info.g.dart';
 
 @JsonSerializable()
 class Info {
-  late String title;
-  String? description;
-  late String version;
+  String title;
+  @JsonKey(includeIfNull: false) String? description;
+  String version;
 
   Info({required this.title, this.description, required this.version});
 

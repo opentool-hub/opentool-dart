@@ -14,6 +14,6 @@ Info _$InfoFromJson(Map<String, dynamic> json) => Info(
 
 Map<String, dynamic> _$InfoToJson(Info instance) => <String, dynamic>{
       'title': instance.title,
-      'description': instance.description,
+      if (instance.description case final value?) 'description': value,
       'version': instance.version,
     };

@@ -15,7 +15,7 @@ Parameter _$ParameterFromJson(Map<String, dynamic> json) => Parameter(
 
 Map<String, dynamic> _$ParameterToJson(Parameter instance) => <String, dynamic>{
       'name': instance.name,
-      'description': instance.description,
-      'schema': instance.schema,
+      if (instance.description case final value?) 'description': value,
+      'schema': instance.schema.toJson(),
       'required': instance.required,
     };

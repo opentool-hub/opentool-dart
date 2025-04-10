@@ -14,6 +14,6 @@ Return _$ReturnFromJson(Map<String, dynamic> json) => Return(
 
 Map<String, dynamic> _$ReturnToJson(Return instance) => <String, dynamic>{
       'name': instance.name,
-      'description': instance.description,
-      'schema': instance.schema,
+      if (instance.description case final value?) 'description': value,
+      'schema': instance.schema.toJson(),
     };
