@@ -81,15 +81,15 @@ class SerialPortDriver extends ToolDriver {
         description: "open the serial port by name.", 
         parameters: [
           Parameter(name: "name", description: "Serial port name", schema: Schema(type: SchemaType.STRING), required: true),
-          Parameter(name: "baudRate", description: "Baud rate, default 9600", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "bits", description: "Data bits, default 8", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "parity", description: "Parity setting, include `${ParityType.NONE}`, `${ParityType.ODD}`, `${ParityType.EVEN}`, `${ParityType.MARK}`, `${ParityType.SPACE}`, default `${ParityType.NONE}`", schema: Schema(type: SchemaType.STRING)),
-          Parameter(name: "stopBits", description: "Stop bits, default 1", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "rts", description: "RTS pin behaviour, default 1", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "cts", description: "CTS pin behaviour, default 0", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "dtr", description: "DTR pin behaviour, default 1", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "dsr", description: "DSR pin behaviour, default 1", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "xonXoff", description: "XON/XOFF, default 0", schema: Schema(type: SchemaType.INTEGER))
+          Parameter(name: "baudRate", description: "Baud rate, default 9600", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "bits", description: "Data bits, default 8", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "parity", description: "Parity setting, include `${ParityType.NONE}`, `${ParityType.ODD}`, `${ParityType.EVEN}`, `${ParityType.MARK}`, `${ParityType.SPACE}`, default `${ParityType.NONE}`", schema: Schema(type: SchemaType.STRING), required: false),
+          Parameter(name: "stopBits", description: "Stop bits, default 1", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "rts", description: "RTS pin behaviour, default 1", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "cts", description: "CTS pin behaviour, default 0", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "dtr", description: "DTR pin behaviour, default 1", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "dsr", description: "DSR pin behaviour, default 1", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "xonXoff", description: "XON/XOFF, default 0", schema: Schema(type: SchemaType.INTEGER), required: false)
         ],
         return_: Return(
           name: "openStatus",
@@ -102,7 +102,7 @@ class SerialPortDriver extends ToolDriver {
         description: "Write commands included '/n' to serial port has been opened.",
         parameters: [
           Parameter(name: "command", description: "Command to write, can be with '/n'.", schema: Schema(type: SchemaType.STRING), required: true),
-          Parameter(name: "timeout", description: "Timeout for write command, default 1000 ms", schema: Schema(type: SchemaType.INTEGER))
+          Parameter(name: "timeout", description: "Timeout for write command, default 1000 ms", schema: Schema(type: SchemaType.INTEGER), required: false)
         ],
         return_: Return(
             name: "byteWritenCount",
@@ -114,8 +114,8 @@ class SerialPortDriver extends ToolDriver {
         name: "readData",
         description: "Read data string by utf-8 from serial port.",
         parameters: [
-          Parameter(name: "bufferBytes", description: "buffer size in bytes, default 10000", schema: Schema(type: SchemaType.INTEGER)),
-          Parameter(name: "timeout", description: "Timeout for read data, unit ms, default -1", schema: Schema(type: SchemaType.INTEGER))
+          Parameter(name: "bufferBytes", description: "buffer size in bytes, default 10000", schema: Schema(type: SchemaType.INTEGER), required: false),
+          Parameter(name: "timeout", description: "Timeout for read data, unit ms, default -1", schema: Schema(type: SchemaType.INTEGER), required: false)
         ],
         return_: Return(
           name: "data",

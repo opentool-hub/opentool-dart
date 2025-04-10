@@ -9,8 +9,7 @@ class FunctionModel {
   String name;
   String description;
   List<Parameter> parameters;
-  @JsonKey(name: "return")
-  @JsonKey(includeIfNull: false) Return? return_;
+  @JsonKey(name: "return", includeIfNull: false) Return? return_;
 
   FunctionModel({required this.name, required this.description, required this.parameters, this.return_});
 
