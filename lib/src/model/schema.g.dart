@@ -15,7 +15,7 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) => Schema(
       items: json['items'] == null
           ? null
           : Schema.fromJson(json['items'] as Map<String, dynamic>),
-      enum_: (json['enum'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      enum_: json['enum'] as List<dynamic>?,
       required: (json['required'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),

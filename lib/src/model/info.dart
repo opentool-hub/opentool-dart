@@ -2,10 +2,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'info.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class Info {
   String title;
-  @JsonKey(includeIfNull: false) String? description;
+  String? description;
   String version;
 
   Info({required this.title, this.description, required this.version});

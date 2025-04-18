@@ -1,3 +1,7 @@
+## 0.5.0
+- fixed opentool json format issue
+- update openapi and openrpc to the newest version
+
 ## 0.4.0
 - add MCP stdio driver
 

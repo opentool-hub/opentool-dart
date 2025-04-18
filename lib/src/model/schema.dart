@@ -11,22 +11,26 @@ class SchemaType {
   static const String OBJECT = "object";
 }
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class Schema {
   String type;  // data_type: boolean, integer, number, string, array, object
-  @JsonKey(includeIfNull: false) String? description;
-  @JsonKey(includeIfNull: false) Map<String, Schema>? properties;  // for object
-  @JsonKey(includeIfNull: false) Schema? items;  // for array
-  @JsonKey(name: "enum", includeIfNull: false) List<String>? enum_;// for enum
-  @JsonKey(includeIfNull: false) List<String>? required;
+  String? description;
+  Map<String, Schema>? properties;  // for object
+  Schema? items;  // for array
+  @JsonKey(name: "enum") List<Object?>? enum_;// for enum
+  List<String>? required;
 
   Schema({required this.type, this.description, this.properties, this.items, this.enum_, this.required});
 
   factory Schema.fromJson(Map<String, dynamic> json) {
     if (json["\$ref"] != null) {
-      return _fromRef(json["\$ref"] as String);
+      Schema schema =  _fromRef(json["\$ref"] as String);
+      schema._validateEnumConsistency();
+      return schema;
     }
-    return _$SchemaFromJson(json);
+    Schema schema =  _$SchemaFromJson(json);
+    schema._validateEnumConsistency();
+    return schema;
   }
 
   Map<String, dynamic> toJson() => _$SchemaToJson(this);
@@ -43,6 +47,35 @@ class Schema {
       }
     } else {
       throw FormatException("#ref format exception: $ref");
+    }
+  }
+
+  void _validateEnumConsistency() {
+    if (enum_ == null || enum_!.isEmpty) {
+      return;
+    }
+    for (var i = 0; i < enum_!.length; i++) {
+      var value = enum_![i];
+      if (!_isValueConsistentWithType(value)) {
+        throw FormatException('Enum value at index $i ("$value") does not match schema type "$type".');
+      }
+    }
+  }
+
+  bool _isValueConsistentWithType(Object? value) {
+    switch (type) {
+      case 'string':
+        return value is String || value == null;
+      case 'integer':
+        return value is int || value == null;
+      case 'number':
+        return (value is num && value is! bool) || value == null;
+      case 'boolean':
+        return value is bool || value == null;
+      case 'null':
+        return value == null;
+      default:
+        return true;
     }
   }
 }

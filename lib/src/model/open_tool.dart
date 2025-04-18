@@ -5,12 +5,12 @@ import 'schema.dart';
 
 part 'open_tool.g.dart';
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class OpenTool {
   String opentool;
   Info info;
   List<FunctionModel> functions;
-  @JsonKey(includeIfNull: false) Map<String, Schema>? schemas;
+  Map<String, Schema>? schemas;
 
   OpenTool({required this.opentool, required this.info, required this.functions});
 
