@@ -225,7 +225,7 @@ class OpenAPIDriver extends ot.ToolDriver {
 //   'object': PropertyType.object
 // };
 
-enum ApiKeyType { basic, bearer }
+enum ApiKeyType { basic, bearer, original }
 
 String convertToAuthorization(ApiKeyType type, String apiKey) {
   switch (type) {
@@ -233,5 +233,7 @@ String convertToAuthorization(ApiKeyType type, String apiKey) {
       return "Basic " + apiKey;
     case ApiKeyType.bearer:
       return "Bearer " + apiKey;
+    case ApiKeyType.original:
+      return apiKey;
   }
 }
