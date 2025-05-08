@@ -1,3 +1,6 @@
+## 0.6.1
+- upgrade dependencies and fixed compatibility issues
+
 ## 0.6.0
 - fixed field name issue: when calling, parameters -> arguments
 

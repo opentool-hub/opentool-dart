@@ -72,40 +72,22 @@ class McpStdioDriver extends ToolDriver {
     }).toList();
   }
 
-  List<Parameter> _convertToolInputSchemaToParameters(ToolInputSchema schema) {
+  List<Parameter> _convertToolInputSchemaToParameters(ToolInputSchema schema, {List<String>? required}) {
     if (schema.properties == null) {
       return [];
     }
 
-    List<String> requiredProperties = [];
-    if (schema.additionalProperties.containsKey('required')) {
-      requiredProperties = List<String>.from(schema.additionalProperties['required']);
-    }
-
     return schema.properties!.entries.map((entry) {
-      String paramName = entry.key;
-      Map<String, dynamic> paramSchema = entry.value as Map<String, dynamic>;
+      final name = entry.key;
+      final value = entry.value as Map<String, dynamic>;
+      final isRequired = required?.contains(name) ?? false;
 
-      String? description = paramSchema['description'] as String?;
-
-      String type = paramSchema['type'] as String;
-
-      List<String>? enumValues = paramSchema.containsKey('enum') ? List<String>.from(paramSchema['enum']) : null;
-
-      Schema? items;
-      if (type == 'array' && paramSchema.containsKey('items')) {
-        items = parseSchema(paramSchema['items'] as Map<String, dynamic>);
-      }
-
-      Map<String, Schema>? properties;
-      List<String>? required;
-      if (type == 'object') {
-        properties = paramSchema.containsKey('properties') ? (paramSchema['properties'] as Map<String, dynamic>).map((key, value) => MapEntry(key, parseSchema(value as Map<String, dynamic>))) : null;
-        required = paramSchema.containsKey('required') ? List<String>.from(paramSchema['required']) : null;
-      }
-      Schema schema = Schema(type: type, description: description, properties: properties, items: items, enum_: enumValues, required: required,);
-      bool isRequired = requiredProperties.contains(paramName);
-      return Parameter(name: paramName, description: description, schema: schema, required: isRequired,);
+      return Parameter(
+        name: name,
+        description: value['description'],
+        required: isRequired,
+        schema: parseSchema(value),
+      );
     }).toList();
   }
 
