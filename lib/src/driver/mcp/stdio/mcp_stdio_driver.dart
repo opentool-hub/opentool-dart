@@ -48,7 +48,7 @@ class McpStdioDriver extends ToolDriver {
 
   @override
   Future<ToolReturn> call(FunctionCall functionCall) async {
-    CallToolResult callToolResult = await client.callTool(CallToolRequestParams(name: functionCall.name, arguments: functionCall.parameters));
+    CallToolResult callToolResult = await client.callTool(CallToolRequestParams(name: functionCall.name, arguments: functionCall.arguments));
     return ToolReturn(id: functionCall.id, result: callToolResult.toJson());
   }
 

@@ -23,7 +23,7 @@ class OpenDynDriver extends ToolDriver {
     od.FunctionModel odFunctionModel = openDyn.functions.firstWhere((od.FunctionModel odFunctionModel) => odFunctionModel.name == functionCall.name);
 
     List<ParameterInfo> parameterInfoList = [];
-    functionCall.parameters.forEach((parameterName, parameterValue){
+    functionCall.arguments.forEach((parameterName, parameterValue){
       od.Parameter odParameter = odFunctionModel.parameters.firstWhere((od.Parameter odParameter) => odParameter.name == parameterName);
 
       ParameterInfo parameterInfo = ParameterInfo(

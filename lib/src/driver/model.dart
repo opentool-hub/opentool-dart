@@ -1,17 +1,17 @@
 class FunctionCall {
   late String id;
   late String name;
-  late Map<String, dynamic> parameters;
+  late Map<String, dynamic> arguments;
 
-  FunctionCall({required this.id, required this.name, required this.parameters});
+  FunctionCall({required this.id, required this.name, required this.arguments});
 
   factory FunctionCall.fromJson(Map<String, dynamic> json) {
     return FunctionCall(
-        id: json['id'], name: json['name'], parameters: json['parameters']);
+        id: json['id'], name: json['name'], arguments: json['arguments']);
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'parameters': parameters};
+    return {'id': id, 'name': name, 'arguments': arguments};
   }
 }
 

@@ -9,7 +9,7 @@ class JsonRPCDriver extends OpenRPCDriver {
   Future<ToolReturn> call(FunctionCall functionCall) async {
     JsonRPCHttpRequestBody jsonRPCHttpRequestBody = JsonRPCHttpRequestBody(
       method: functionCall.name,
-      params: functionCall.parameters,
+      params: functionCall.arguments,
       id: functionCall.id
     );
     JsonRPCHttpRequest jsonRPCHttpRequest = JsonRPCHttpRequest(url: openRPC.servers!.first.url, body: jsonRPCHttpRequestBody);

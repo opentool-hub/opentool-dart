@@ -200,7 +200,7 @@ class OpenAPIDriver extends ot.ToolDriver {
       method: method,
       baseUrl: baseUrl,
       path: path,
-      params: functionCall.parameters
+      params: functionCall.arguments
     );
 
     HttpAPIResponse httpAPIResponse = await requestHttpAPI(

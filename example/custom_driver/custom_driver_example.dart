@@ -4,7 +4,7 @@ import 'mock_driver.dart';
 
 Future<void> main() async {
   Map<String, dynamic> createParams = {};
-  FunctionCall functionCall = FunctionCall(id: "callId-0", name: "count", parameters: createParams);
+  FunctionCall functionCall = FunctionCall(id: "callId-0", name: "count", arguments: createParams);
 
   String jsonFileName = "mock_tool.json";
   String jsonPath = "${Directory.current.path}${Platform.pathSeparator}example${Platform.pathSeparator}custom_driver${Platform.pathSeparator}$jsonFileName";

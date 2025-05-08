@@ -43,14 +43,14 @@ Future<void> main() async {
   //   parameters: params
   // );
 
-  Map<String, dynamic> params = {
+  Map<String, dynamic> args = {
     "a": 10,
     "b": 20
   };
   FunctionCall functionCall = FunctionCall(
     id: "callId-2",
-    name: "swap_and_sum", 
-    parameters: params
+    name: "swap_and_sum",
+    arguments: args
   );
   
   try {

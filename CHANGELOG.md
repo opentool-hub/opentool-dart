@@ -1,3 +1,6 @@
+## 0.6.0
+- fixed field name issue: when calling, parameters -> arguments
+
 ## 0.5.0
 - fixed opentool json format issue
 - update openapi and openrpc to the newest version

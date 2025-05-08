@@ -2,8 +2,8 @@ import 'package:opentool_dart/opentool_dart.dart';
 
 Future<void> main() async {
 
-  Map<String, dynamic> createParams = {};
-  FunctionCall functionCall = FunctionCall(id: "callId-0", name: "getAvailablePorts", parameters: createParams);
+  Map<String, dynamic> args = {};
+  FunctionCall functionCall = FunctionCall(id: "callId-0", name: "getAvailablePorts", arguments: args);
 
   ToolDriver serialPortDriver = SerialPortDriver();
 

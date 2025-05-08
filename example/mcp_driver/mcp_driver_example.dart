@@ -8,13 +8,13 @@ Future<void> main() async {
   McpStdioDriver mcpStdioDriver = McpStdioDriver.fromOpenMCPString(jsonString);
   await mcpStdioDriver.init();
 
-  Map<String, dynamic> params = {
+  Map<String, dynamic> args = {
     "text": "test"
   };
   FunctionCall functionCall = FunctionCall(
     id: "callId-2",
     name: "create",
-    parameters: params
+    arguments: args
   );
 
   try {
