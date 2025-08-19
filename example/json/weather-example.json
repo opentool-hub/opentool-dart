@@ -1,0 +1,81 @@
+{
+  "opentool": "1.0.0",
+  "info": {
+    "title": "Weather Example",
+    "version": "1.0.0"
+  },
+  "functions": [
+    {
+      "name": "get_current_weather",
+      "description": "Get the current weather",
+      "parameters": [
+        {
+          "name": "currentWeatherInfo",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city and state, e.g. San Francisco, CA"
+              },
+              "format": {
+                "type": "string",
+                "description": "The temperature unit to use. Infer this from the users location.",
+                "enum": [
+                  "celsius",
+                  "fahrenheit"
+                ]
+              }
+            },
+            "required": ["location", "format"]
+          },
+          "required": true
+        }
+      ],
+      "return": {
+        "name": "currentWeather",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "get_n_day_weather_forecast",
+      "description": "Get an N-day weather forecast",
+      "parameters": [
+        {
+          "name": "forecastWeatherInfo",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "The city and state, e.g. San Francisco, CA"
+              },
+              "format": {
+                "type": "string",
+                "description": "The temperature unit to use. Infer this from the users location.",
+                "enum": [
+                  "celsius",
+                  "fahrenheit"
+                ]
+              },
+              "num_days": {
+                "type": "integer",
+                "description": "The number of days to forecast"
+              }
+            },
+            "required": ["location", "format", "num_days"]
+          },
+          "required": true
+        }
+      ],
+      "return": {
+        "name": "forecastWeather",
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

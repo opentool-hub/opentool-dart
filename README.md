@@ -1,46 +1,63 @@
-# opentool_dart
+# OpenTool SDK for Dart
 
-English · [中文](README-zh_CN.md)
+English | [中文](README-zh_CN.md)
 
-An OpenTool JSON Spec Parser for dart with ToolDrivers.
+Dart SDK for OpenTool client and server, including OpenTool JSON parser.
 
-Inspired by OpenAPI, OpenRPC, and OpenAI `function calling` example.
+## Example
 
-## Features
+1. Run `/example/server/main.dart` to start an OpenTool Server
+2. Run `/example/client/main.dart` to start an OpenTool Client
 
-- Load OpenTool json file, and convert to dart object. See [OpenTool Specification](opentool-specification-en.md).
-- ToolDriver abstract class for LLM function calling support.
-- Support JSON Specification/Driver: 
-  - HTTP: [OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart)
-  - JSON-RPC: [OpenRPC/JSON-RPC](https://github.com/djbird2046/openrpc_dart)
-  - Modbus: [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
-  - dll/dylib: [OpenDyn](https://github.com/LiteVar/opendyn_dart)
-  - Serial Port
-  - MCP：stdio, [Tools](https://modelcontextprotocol.io/docs/concepts/tools)
+## Installation
+
+Add the following to your Dart project dependencies:
+
+```yaml
+dependencies:
+    opentool_dart: ^1.1.0
+```
 
 ## Usage
 
-According to `/example/opentool_dart_example.dart`.
+1. Implement the `Tool` interface:
 
-- From JSON String
-```dart
-Future<void> main() async {
-  String jsonString = "{...OpenTool String...}";
-  OpenToolLoader openToolLoader = OpenToolLoader();
-  OpenTool openTool = await openToolLoader.load(jsonString);
-}
-```
-- From JSON File
-```dart
-Future<void> main() async {
-  String jsonPath = "$currentWorkingDirectory/example/json/$jsonFileName";
-  OpenToolLoader openToolLoader = OpenToolLoader();
-  OpenTool openTool = await openToolLoader.loadFromFile(jsonPath); 
-}
-```
+   ```dart
+   class MockTool extends Tool {
+     MockUtil mockUtil = MockUtil();
 
-## Note
+     @override
+     Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {
+       if(name == "count") {
+         int count = mockUtil.count();
+         return {"count": count};
+       } else {
+         return FunctionNotSupportedException(functionName: name).toJson();
+       }
+     }
 
-### Serial Port
+     @override
+     Future<OpenTool?> load() async {
+       String folder = "${io.Directory.current.path}${io.Platform.pathSeparator}example${io.Platform.pathSeparator}server";
+       String fileName = "mock_tool.json";
+       String jsonPath = "$folder${io.Platform.pathSeparator}$fileName";
+       OpenTool openTool = await OpenToolJsonLoader().loadFromFile(jsonPath);
+       return openTool;
+     }
+   }
+   ```
 
-- The lib `libserialport` need environmentVariable `LIBSERIALPORT_PATH` to be set to the path of the `libs/serial_port/windows/libserialport.dll`(Windows) or `libs/serial_port/macos/libserialport.dylib`(macOS)
+2. Start the `Server`:
+
+   ```dart
+   Future<void> main() async {
+     Tool tool = MockTool();
+     Server server = OpenToolServer(tool, "1.0.0", apiKeys: ["6621c8a3-2110-4e6a-9d62-70ccd467e789", "bb31b6a6-1fda-4214-8cd6-b1403842070c"]);
+     await server.start();
+   }
+   ```
+
+## Notes
+
+1. The default port is `9627`. Both Client and Server can change the port, just make sure they match.
+2. New tools must implement the `call` method. The `load` method is optional, but it's recommended to use the [OpenTool JSON specification](https://github.com/opentool-hub/opentool-spec) to describe tools. Programmatic creation of the `OpenTool` object is also supported.

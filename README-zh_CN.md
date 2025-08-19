@@ -1,46 +1,61 @@
-# opentool_dart
+# OpenTool SDK for Dart
 
-[English](README.md) · 中文
+[English](README.md) | 中文
 
-一个用于 Dart 的 OpenTool JSON 规范解析器，带有ToolDrivers。
+OpenTool的client和server的Dart SDK，并连带OpenTool JSON的Parser
 
-灵感来源于OpenAPI、OpenRPC和OpenAI的 `function calling`示例。
+## Example
 
-## 特性
+1. 运行 `/example/server/main.dart` 启动一个OpenTool Server
+2. 运行 `/example/client/main.dart` 启动OpenTool Client
 
-- 加载 OpenTool JSON 文件，并转换为 Dart 对象。 见 [OpenTool规范](opentool-specification-cn.md).
-- 提供用于支持 LLM 函数调用的 ToolDriver 抽象类。
-- 支持的JSON规范/驱动：
-  - HTTP: [OpenAPI3/HTTP](https://github.com/djbird2046/openapi_dart)
-  - JSON-RPC: [OpenRPC/JSON-RPC](https://github.com/djbird2046/openrpc_dart)
-  - Modbus: [OpenModbus/RTU/ASCII/TCP/UDP](https://github.com/djbird2046/openmodbus_dart)
-  - dll/dylib: [OpenDyn](https://github.com/LiteVar/opendyn_dart)
-  - Serial Port
-  - MCP：stdio, [Tools](https://modelcontextprotocol.io/docs/concepts/tools)
+## 安装
 
-## 用法
+在Dart项目的依赖文件中增加：
 
-根据 `/example/opentool_dart_example.dart` 示例进行操作。
-
-- 从 JSON 字符串加载
-```dart
-Future<void> main() async {
-  String jsonString = "{...OpenTool String...}";
-  OpenToolLoader openToolLoader = OpenToolLoader();
-  OpenTool openTool = await openToolLoader.load(jsonString);
-}
-```
-- 从 JSON 文件加载
-```dart
-Future<void> main() async {
-  String jsonPath = "$currentWorkingDirectory/example/json/$jsonFileName";
-  OpenToolLoader openToolLoader = OpenToolLoader();
-  OpenTool openTool = await openToolLoader.loadFromFile(jsonPath); 
-}
+```yaml
+dependencies:
+    opentool_dart: ^1.1.0
 ```
 
-## 注意
+## 使用
 
-### 串口连接
+1. 实现`Tool`接口
+    ```dart
+    class MockTool extends Tool {
+      MockUtil mockUtil = MockUtil();
+      
+      @override
+      Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {
+        if(name == "count") {
+          int count = mockUtil.count();
+          return {"count": count};
+        } else {
+          return FunctionNotSupportedException(functionName: name).toJson();
+        }
+      }
+    
+      @override
+      Future<OpenTool?> load() async {
+        String folder = "${io.Directory.current.path}${io.Platform.pathSeparator}example${io.Platform.pathSeparator}server";
+        String fileName = "mock_tool.json";
+        String jsonPath = "$folder${io.Platform.pathSeparator}$fileName";
+        OpenTool openTool = await OpenToolJsonLoader().loadFromFile(jsonPath);
+        return openTool;
+      }
+    }
+    ```
+2. 拉起`Server`
+    ```dart
+    Future<void> main() async {
+      Tool tool = MockTool();
+      Server server = OpenToolServer(tool, "1.0.0",apiKeys: ["6621c8a3-2110-4e6a-9d62-70ccd467e789", "bb31b6a6-1fda-4214-8cd6-b1403842070c"]);
+      await server.start();
+    }
+    ```
 
-- 串口连接的库 `libserialport` 依赖环境变量 `LIBSERIALPORT_PATH`，设置为文件 `libs/serial_port/windows/libserialport.dll`(Windows) or `libs/serial_port/macos/libserialport.dylib`(macOS)
+
+## 说明
+
+1. 默认端口`9627`，Client与Server支持更换端口，注意对应上即可
+2. 新的Tool需要实现`call`方法，可选实现`load`方法，建议采用[OpenTool规范的JSON格式文件](https://github.com/opentool-hub/opentool-spec)来描述Tool，但同样支持采用代码方式构建OpenTool对象。

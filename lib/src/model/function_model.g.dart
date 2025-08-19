@@ -23,5 +23,5 @@ Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
       'name': instance.name,
       'description': instance.description,
       'parameters': instance.parameters.map((e) => e.toJson()).toList(),
-      if (instance.return_?.toJson() case final value?) 'return': value,
+      'return': ?instance.return_?.toJson(),
     };

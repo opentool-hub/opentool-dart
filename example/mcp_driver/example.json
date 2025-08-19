@@ -1,6 +1,0 @@
-{
-  "mcpServer": {
-    "command": "dart",
-    "args": ["run", "./example/mcp_driver/mcp_mock_server.dart"]
-  }
-}
