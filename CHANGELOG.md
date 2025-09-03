@@ -1,3 +1,7 @@
+## 2.0.0
+
+- following OpenTool Spec 2.0.0, add stream return support
+
 ## 1.1.0
 
 - following OpenTool Spec 1.1.0,add Server field
