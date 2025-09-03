@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io' as io;
 import 'package:dio/dio.dart';
 import '../../opentool_dart.dart';
 
 abstract class Client {
   Future<Version> version();
   Future<ToolReturn> call(FunctionCall functionCall);
+  Future<void> streamCall(FunctionCall functionCall, void Function(String event, ToolReturn toolReturn) onToolReturn);
   Future<OpenTool?> load() async => null;
 }
 
@@ -58,10 +60,10 @@ class OpenToolClient extends Client {
   }
 
   Future<Map<String, dynamic>> _callJsonRpcHttp(
-      String id,
-      String method,
-      Map<String, dynamic> params,
-      ) async {
+    String id,
+    String method,
+    Map<String, dynamic> params,
+    ) async {
     JsonRPCHttpRequestBody requestBody = JsonRPCHttpRequestBody(
       id: id,
       method: method,
@@ -89,6 +91,74 @@ class OpenToolClient extends Client {
     }
   }
 
+
+  Future<void> streamCall(FunctionCall functionCall, void Function(String event, ToolReturn toolReturn) onToolReturn) async {
+
+    Stream<String> sseStream = await _streamCallJsonRpcHttp(
+        functionCall.id,
+        functionCall.name,
+        functionCall.arguments
+    );
+
+    sseStream.listen((sseString) {
+      _onData(sseString, (String event, Map<String, dynamic> data) {
+        if(event == EventType.START) {
+          onToolReturn(event, ToolReturn(id: functionCall.id, result: data));
+        } else if(event == EventType.DATA || event == EventType.ERROR) {
+          JsonRPCHttpResponseBody responseBody = JsonRPCHttpResponseBody.fromJson(data);
+          if (responseBody.error != null) {
+            throw OpenToolServerCallException(responseBody.error!.message);
+          }
+          onToolReturn(event, ToolReturn(id: functionCall.id, result: responseBody.result));
+        }
+      });
+    },
+        onDone: () {
+          onToolReturn(EventType.DONE, ToolReturn(id: functionCall.id, result: {EventType.DONE: functionCall.name}));
+        },
+        onError: (e) {
+          throw OpenToolServerCallException(e.toString());
+        }
+    );
+  }
+
+  Future<Stream<String>> _streamCallJsonRpcHttp(
+      String id,
+      String method,
+      Map<String, dynamic> params
+      ) async {
+    JsonRPCHttpRequestBody requestBody = JsonRPCHttpRequestBody(
+      id: id,
+      method: method,
+      params: params,
+    );
+
+    try {
+      Uri uri = Uri.parse('${dio.options.baseUrl}/streamCall');
+      io.HttpClient httpClient = io.HttpClient();
+
+      io.HttpClientRequest request = await httpClient.postUrl(uri);
+
+      request.headers.add(io.HttpHeaders.acceptHeader, 'text/event-stream');
+      request.headers.add(io.HttpHeaders.contentTypeHeader, 'application/json');
+      if(apiKey != null) request.headers.add(io.HttpHeaders.authorizationHeader, 'Bearer $apiKey');
+
+      Map<String, dynamic> data = requestBody.toJson();
+
+      request.add(utf8.encode(jsonEncode(data)));
+
+      io.HttpClientResponse response = await request.close();
+
+      Stream<String> stream = response.transform(utf8.decoder);
+      return stream;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw OpenToolServerUnauthorizedException();
+      }
+      throw OpenToolServerNoAccessException();
+    }
+  }
+
   @override
   Future<OpenTool?> load() async {
     try {
@@ -98,6 +168,21 @@ class OpenToolClient extends Client {
       return OpenTool.fromJson(parsed);
     } catch (_) {
       return null;
+    }
+  }
+}
+
+Future<void> _onData(String data, void Function(String event, Map<String, dynamic> data) onEvent) async {
+  // final eventRegex = RegExp(r"^(?:event:\s*(?<event>.+?)\r?\n)?data:\s*(?<data>\{.*\})$");
+  final eventRegex = RegExp(r'event:(\w+)\ndata:(.*?)\n\n');
+  final matches = eventRegex.allMatches(data);
+
+  for (var match in matches) {
+    final eventName = match.group(1);
+    final eventData = match.group(2);
+
+    if(eventName != null && eventData != null) {
+      onEvent(eventName, jsonDecode(eventData));
     }
   }
 }

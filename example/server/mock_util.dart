@@ -14,6 +14,12 @@ class MockUtil {
     return storage[id];
   }
 
+  void sequentiallyRead(void Function(String data) onData) {
+    storage.forEach((String data) {
+      onData(data);
+    });
+  }
+
   void update(int id, String text) {
     storage[id] = text;
   }

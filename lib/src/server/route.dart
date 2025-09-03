@@ -6,5 +6,6 @@ Router jsonRpcHttpRouter = Router();
 void opentoolRoutes(Controller controller) {
   jsonRpcHttpRouter.get('/version', controller.getVersion);
   jsonRpcHttpRouter.post('/call', controller.call);
+  jsonRpcHttpRouter.post('/streamCall', controller.streamCall);
   jsonRpcHttpRouter.get('/load', controller.load);
 }

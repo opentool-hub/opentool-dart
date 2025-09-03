@@ -14,5 +14,6 @@ export 'src/client/opentool_client.dart';
 export 'src/client/exception.dart';
 export 'src/server/opentool_server.dart';
 export 'src/tool/tool.dart';
+export 'src/tool/model.dart';
 export 'src/tool/exception.dart';
 export 'src/utils/unique_id_generator.dart';

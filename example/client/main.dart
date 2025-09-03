@@ -13,6 +13,13 @@ Future<void> main() async {
   ToolReturn toolReturn = await client.call(functionCall);
   print(toolReturn.toJson());
 
+  // StreamCall Tool
+  Map<String, dynamic> arguments1 = {};
+  FunctionCall functionCall1 = FunctionCall(id: "callId-1", name: "sequentiallyRead", arguments: arguments1);
+  await client.streamCall(functionCall1, (event, toolReturn) {
+    print(toolReturn.toJson());
+  });
+
   // Load OpenTool
   OpenTool? openTool = await client.load();
   print(openTool?.toJson());

@@ -1,14 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:shelf/shelf.dart';
 import '../tool/exception.dart';
+import '../tool/model.dart';
 import '../tool/tool.dart';
 import '../dto.dart';
-
-const Map<String, String> jsonHeaders = {'Content-Type': 'application/json'};
 
 class Controller {
   final Tool tool;
   final String version;
+  final Map<String, String> jsonHeaders = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive',};
+  final Map<String, String> streamHeaders = {HttpHeaders.contentTypeHeader: 'text/event-stream', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive', 'Cache-Control': 'no-store',};
 
   Controller(this.tool, this.version);
 
@@ -64,6 +67,53 @@ class Controller {
         headers: jsonHeaders,
       );
     }
+  }
+
+  /// POST /streamCall
+  Future<Response> streamCall(Request request) async {
+    final payload = await request.readAsString();
+
+    try {
+      Map<String, dynamic> data = jsonDecode(payload);
+      JsonRPCHttpRequestBody body = JsonRPCHttpRequestBody.fromJson(data);
+
+      StreamController<List<int>> streamController = StreamController<List<int>>();
+
+      _pushData(streamController, EventType.START, jsonEncode({EventType.START: body.method}));
+
+      await tool.streamCall(body.method, body.params, (String event, Map<String, dynamic> data) {
+        if(event == EventType.DATA) {
+          final responseBody = JsonRPCHttpResponseBody(
+              result: data,
+              id: body.id
+          );
+          _pushData(streamController, event, jsonEncode(responseBody.toJson()));
+        } else if(event == EventType.ERROR) {     /// Service Error, through Stream onData, then Close Stream
+          final error = JsonRPCHttpResponseBodyError(
+            code: data['code']?? 500,
+            message: data['message']??jsonEncode(data),
+          );
+          final responseBody = JsonRPCHttpResponseBody(
+            result: {},
+            id: body.id,
+            error: error,
+          );
+          _pushData(streamController, event, jsonEncode(responseBody.toJson()));
+          streamController.close();
+        } else if(event == EventType.DONE) {
+          streamController.close();
+        }
+      });
+
+      return Response.ok(streamController.stream, headers: streamHeaders, context: {'shelf.io.buffer_output': false});
+    } catch (e) {
+      return Response.internalServerError(body: e.toString());  /// FATAL error, will trigger Stream onError
+    }
+  }
+
+  void _pushData(StreamController<List<int>> streamController, String eventType, String dataString) {
+    String data = "event:$eventType\ndata:$dataString\n\n";
+    streamController.sink.add(utf8.encode(data));
   }
 
   /// GET /load

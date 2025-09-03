@@ -16,6 +16,9 @@ FunctionModel _$FunctionModelFromJson(Map<String, dynamic> json) =>
       return_: json['return'] == null
           ? null
           : Return.fromJson(json['return'] as Map<String, dynamic>),
+      stream: (json['stream'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, Return.fromJson(e as Map<String, dynamic>)),
+      ),
     );
 
 Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
@@ -24,4 +27,5 @@ Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
       'description': instance.description,
       'parameters': instance.parameters.map((e) => e.toJson()).toList(),
       'return': ?instance.return_?.toJson(),
+      'stream': ?instance.stream?.map((k, e) => MapEntry(k, e.toJson())),
     };

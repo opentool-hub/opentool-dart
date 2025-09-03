@@ -59,6 +59,21 @@
       }
     },
     {
+      "name": "sequentiallyRead",
+      "description": "Read text from storage one by one",
+      "parameters": [],
+      "return": null,
+      "stream": {
+        "data": {
+          "name": "text",
+          "schema": {
+            "$ref": "#/schemas/Text"
+          },
+          "description": "Text in storage"
+        }
+      }
+    },
+    {
       "name": "update",
       "description": "Update a text in storage by id",
       "parameters": [
