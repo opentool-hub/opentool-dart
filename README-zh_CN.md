@@ -15,7 +15,7 @@ OpenTool的client和server的Dart SDK，并连带OpenTool JSON的Parser
 
 ```yaml
 dependencies:
-    opentool_dart: ^1.1.0
+    opentool_dart: ^2.0.0
 ```
 
 ## 使用
