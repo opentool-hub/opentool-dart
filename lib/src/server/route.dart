@@ -8,4 +8,5 @@ void opentoolRoutes(Controller controller) {
   jsonRpcHttpRouter.post('/call', controller.call);
   jsonRpcHttpRouter.post('/streamCall', controller.streamCall);
   jsonRpcHttpRouter.get('/load', controller.load);
+  jsonRpcHttpRouter.post('/stop', controller.stop);
 }

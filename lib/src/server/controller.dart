@@ -10,10 +10,16 @@ import '../dto.dart';
 class Controller {
   final Tool tool;
   final String version;
+  Future<void> Function() onStop;
+  String? serverId;
   final Map<String, String> jsonHeaders = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive',};
   final Map<String, String> streamHeaders = {HttpHeaders.contentTypeHeader: 'text/event-stream', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive', 'Cache-Control': 'no-store',};
 
-  Controller(this.tool, this.version);
+  Controller(this.tool, this.version, this.onStop);
+
+  void setServerId(String serverId) {
+    this.serverId = serverId;
+  }
 
   /// GET /version
   Future<Response> getVersion(Request request) async {
@@ -121,6 +127,25 @@ class Controller {
     try {
       final openTool = await tool.load();
       final responseBody = openTool?.toJson() ?? JsonParserException().toJson();
+      return Response.ok(
+        jsonEncode(responseBody),
+        headers: jsonHeaders,
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': e.toString()}),
+        headers: jsonHeaders,
+      );
+    }
+  }
+
+  /// POST /stop
+  Future<Response> stop(Request request) async {
+    try {
+      await tool.dispose();
+      final statusInfo = StatusInfo(status: StatusType.STOPPED, serverId: serverId??"NULL");
+      final responseBody = statusInfo.toJson();
+      unawaited(onStop());
       return Response.ok(
         jsonEncode(responseBody),
         headers: jsonHeaders,

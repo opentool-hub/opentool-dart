@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
@@ -26,7 +27,7 @@ class OpenToolServer extends Server {
   String prefix = DEFAULT_PREFIX;
   List<String> apiKeys = const [];
   late HttpServer server;
-
+  final _serverCompleter = Completer<HttpServer>();
 
   OpenToolServer(Tool tool, String version, {String? ip, int? port, List<String>? apiKeys}) : super(tool, version) {
     if(ip != null && ip.isNotEmpty) this.ip = ip;
@@ -36,7 +37,7 @@ class OpenToolServer extends Server {
 
   @override
   Future<void> start() async {
-    Controller controller = Controller(tool, version);
+    Controller controller = Controller(tool, version, stop);
 
     opentoolRoutes(controller);
 
@@ -65,12 +66,19 @@ class OpenToolServer extends Server {
       print("WARNING: Register to daemon failed. (${result.error})");
       print("Tool Running in SOLO mode.");
     } else {
+      controller.setServerId(result.id);
       print("Register to daemon successfully, id: ${result.id}, pid:$pid");
     }
+
+    _serverCompleter.complete(server);
   }
 
   @override
   Future<void> stop() async {
+    await Future.delayed(Duration(milliseconds: 200));
+    final server = await _serverCompleter.future;
+    print("Shutting down server...");
     await server.close(force: true);
+    print("Server stopped.");
   }
 }

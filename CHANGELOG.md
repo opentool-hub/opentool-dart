@@ -1,3 +1,7 @@
+## 2.1.0
+
+- add stop method 
+
 ## 2.0.0
 
 - following OpenTool Spec 2.0.0, add stream return support

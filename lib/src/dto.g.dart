@@ -61,3 +61,11 @@ JsonRPCHttpResponseBodyError _$JsonRPCHttpResponseBodyErrorFromJson(
 Map<String, dynamic> _$JsonRPCHttpResponseBodyErrorToJson(
   JsonRPCHttpResponseBodyError instance,
 ) => <String, dynamic>{'code': instance.code, 'message': instance.message};
+
+StatusInfo _$StatusInfoFromJson(Map<String, dynamic> json) => StatusInfo(
+  status: json['status'] as String,
+  serverId: json['serverId'] as String,
+);
+
+Map<String, dynamic> _$StatusInfoToJson(StatusInfo instance) =>
+    <String, dynamic>{'status': instance.status, 'serverId': instance.serverId};

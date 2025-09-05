@@ -55,3 +55,19 @@ class JsonRPCHttpResponseBodyError {
 
   Map<String, dynamic> toJson() => _$JsonRPCHttpResponseBodyErrorToJson(this);
 }
+
+class StatusType {
+  static const String STOPPED = "stopped";
+}
+
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
+class StatusInfo {
+  String status;
+  String serverId;
+
+  StatusInfo({required this.status, required this.serverId});
+
+  factory StatusInfo.fromJson(Map<String, dynamic> json) => _$StatusInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$StatusInfoToJson(this);
+}

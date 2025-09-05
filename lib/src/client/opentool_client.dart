@@ -8,6 +8,7 @@ abstract class Client {
   Future<ToolReturn> call(FunctionCall functionCall);
   Future<void> streamCall(FunctionCall functionCall, void Function(String event, ToolReturn toolReturn) onToolReturn);
   Future<OpenTool?> load() async => null;
+  Future<StatusInfo?> stop();
 }
 
 class OpenToolClient extends Client {
@@ -170,6 +171,18 @@ class OpenToolClient extends Client {
       return null;
     }
   }
+
+  @override
+  Future<StatusInfo?> stop() async {
+    try {
+      final response = await dio.post('/stop');
+      final data = response.data;
+      final parsed = data is Map<String, dynamic> ? data : jsonDecode(data);
+      return StatusInfo.fromJson(parsed);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 Future<void> _onData(String data, void Function(String event, Map<String, dynamic> data) onEvent) async {
@@ -185,4 +198,5 @@ Future<void> _onData(String data, void Function(String event, Map<String, dynami
       onEvent(eventName, jsonDecode(eventData));
     }
   }
+
 }

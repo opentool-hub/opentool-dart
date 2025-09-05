@@ -23,4 +23,8 @@ Future<void> main() async {
   // Load OpenTool
   OpenTool? openTool = await client.load();
   print(openTool?.toJson());
+
+  // Stop OpenTool
+  StatusInfo? statusInfo = await client.stop();
+  print(statusInfo?.toJson());
 }
