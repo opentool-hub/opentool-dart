@@ -3,13 +3,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'server.g.dart';
 
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
-class Server {
+class ServerConfig {
+ 
   String url;
   String? description;
 
-  Server({required this.url, this.description});
+  ServerConfig({required this.url, this.description});
 
-  factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
+  factory ServerConfig.fromJson(Map<String, dynamic> json) => _$ServerConfigFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ServerToJson(this);
+  Map<String, dynamic> toJson() => _$ServerConfigToJson(this);
 }

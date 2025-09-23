@@ -11,7 +11,7 @@ OpenTool _$OpenToolFromJson(Map<String, dynamic> json) => OpenTool(
   info: Info.fromJson(json['info'] as Map<String, dynamic>),
   server: json['server'] == null
       ? null
-      : Server.fromJson(json['server'] as Map<String, dynamic>),
+      : ServerConfig.fromJson(json['server'] as Map<String, dynamic>),
   functions: (json['functions'] as List<dynamic>)
       .map((e) => FunctionModel.fromJson(e as Map<String, dynamic>))
       .toList(),

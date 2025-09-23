@@ -6,12 +6,13 @@ part of 'server.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Server _$ServerFromJson(Map<String, dynamic> json) => Server(
+ServerConfig _$ServerConfigFromJson(Map<String, dynamic> json) => ServerConfig(
   url: json['url'] as String,
   description: json['description'] as String?,
 );
 
-Map<String, dynamic> _$ServerToJson(Server instance) => <String, dynamic>{
-  'url': instance.url,
-  'description': ?instance.description,
-};
+Map<String, dynamic> _$ServerConfigToJson(ServerConfig instance) =>
+    <String, dynamic>{
+      'url': instance.url,
+      'description': ?instance.description,
+    };

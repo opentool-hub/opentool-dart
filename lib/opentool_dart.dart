@@ -8,6 +8,7 @@ export 'src/model/parameter.dart';
 export 'src/model/return.dart';
 export 'src/model/schema.dart';
 export 'src/model/data_type.dart';
+export 'src/model/server.dart';
 export 'src/json_loader.dart';
 export 'src/llm/model.dart';
 export 'src/client/opentool_client.dart';

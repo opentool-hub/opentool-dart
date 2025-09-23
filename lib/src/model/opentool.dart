@@ -10,7 +10,7 @@ part 'opentool.g.dart';
 class OpenTool {
   String opentool;
   Info info;
-  Server? server;
+  ServerConfig? server;
   List<FunctionModel> functions;
   Map<String, Schema>? schemas;
 
