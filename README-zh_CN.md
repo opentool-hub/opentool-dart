@@ -23,26 +23,38 @@ dependencies:
 1. 实现`Tool`接口
     ```dart
     class MockTool extends Tool {
-      MockUtil mockUtil = MockUtil();
-      
-      @override
-      Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {
-        if(name == "count") {
-          int count = mockUtil.count();
-          return {"count": count};
-        } else {
-          return FunctionNotSupportedException(functionName: name).toJson();
-        }
-      }
+     MockUtil mockUtil = MockUtil();
     
-      @override
-      Future<OpenTool?> load() async {
-        String folder = "${io.Directory.current.path}${io.Platform.pathSeparator}example${io.Platform.pathSeparator}server";
-        String fileName = "mock_tool.json";
-        String jsonPath = "$folder${io.Platform.pathSeparator}$fileName";
-        OpenTool openTool = await OpenToolJsonLoader().loadFromFile(jsonPath);
-        return openTool;
-      }
+     @override
+     Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {
+       if(name == "count") {
+         int count = mockUtil.count();
+         return {"count": count};
+       } else {
+         return FunctionNotSupportedException(functionName: name).toJson();
+       }
+     }
+    
+     @override
+     Future<void> streamCall(String name, Map<String, dynamic>? arguments, void Function(String event, Map<String, dynamic> data) sendEvent) async {
+       if(name == "sequentiallyRead") {
+         mockUtil.sequentiallyRead((String data) {
+           sendEvent(EventType.DATA, {"data": data});
+         });
+         sendEvent(EventType.DONE, {});  /// REQUIRED: send DONE event to close the stream.
+       } else {
+         sendEvent(EventType.ERROR, FunctionNotSupportedException(functionName: name).toJson());
+       }
+     }
+    
+     @override
+     Future<OpenTool?> load() async {
+       String folder = "${io.Directory.current.path}${io.Platform.pathSeparator}example${io.Platform.pathSeparator}server";
+       String fileName = "mock_tool.json";
+       String jsonPath = "$folder${io.Platform.pathSeparator}$fileName";
+       OpenTool openTool = await OpenToolJsonLoader().loadFromFile(jsonPath);
+       return openTool;
+     }
     }
     ```
 2. 拉起`Server`

@@ -22,10 +22,10 @@ dependencies:
 
 1. Implement the `Tool` interface:
 
-   ```dart
-   class MockTool extends Tool {
+    ```dart
+    class MockTool extends Tool {
      MockUtil mockUtil = MockUtil();
-
+    
      @override
      Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {
        if(name == "count") {
@@ -35,7 +35,19 @@ dependencies:
          return FunctionNotSupportedException(functionName: name).toJson();
        }
      }
-
+    
+     @override
+     Future<void> streamCall(String name, Map<String, dynamic>? arguments, void Function(String event, Map<String, dynamic> data) sendEvent) async {
+       if(name == "sequentiallyRead") {
+         mockUtil.sequentiallyRead((String data) {
+           sendEvent(EventType.DATA, {"data": data});
+         });
+         sendEvent(EventType.DONE, {});  /// REQUIRED: send DONE event to close the stream.
+       } else {
+         sendEvent(EventType.ERROR, FunctionNotSupportedException(functionName: name).toJson());
+       }
+     }
+    
      @override
      Future<OpenTool?> load() async {
        String folder = "${io.Directory.current.path}${io.Platform.pathSeparator}example${io.Platform.pathSeparator}server";
@@ -44,8 +56,8 @@ dependencies:
        OpenTool openTool = await OpenToolJsonLoader().loadFromFile(jsonPath);
        return openTool;
      }
-   }
-   ```
+    }
+    ```
 
 2. Start the `Server`:
 

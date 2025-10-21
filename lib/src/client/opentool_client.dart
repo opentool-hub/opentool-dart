@@ -13,16 +13,16 @@ abstract class Client {
 
 class OpenToolClient extends Client {
   bool isSSL = false;
-  String host = "localhost";
-  int port = DEFAULT_PORT;
+  late String host;
+  late int port;
   String prefix = DEFAULT_PREFIX;
-  String? apiKey;
+  String? toolApiKey;
   late Dio dio;
 
-  OpenToolClient({bool? isSSL, String? host, int? port, this.apiKey}) {
+  OpenToolClient({bool? isSSL, required String toolHost, required int toolPort, this.toolApiKey}) {
     if (isSSL != null) this.isSSL = isSSL;
-    if (host != null && host.isNotEmpty) this.host = host;
-    if (port != null && port > 0) this.port = port;
+    if (toolHost.isNotEmpty) this.host = toolHost;
+    if (toolPort > 0) this.port = toolPort;
 
     String protocol = this.isSSL ? 'https' : 'http';
     String baseUrl = '$protocol://${this.host}:${this.port}${this.prefix}';
@@ -30,8 +30,8 @@ class OpenToolClient extends Client {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      if (apiKey != null && apiKey!.isNotEmpty)
-        'Authorization': 'Bearer $apiKey',
+      if (toolApiKey != null && toolApiKey!.isNotEmpty)
+        'Authorization': 'Bearer $toolApiKey',
     };
 
     dio = Dio(BaseOptions(baseUrl: baseUrl, headers: headers));
@@ -142,7 +142,7 @@ class OpenToolClient extends Client {
 
       request.headers.add(io.HttpHeaders.acceptHeader, 'text/event-stream');
       request.headers.add(io.HttpHeaders.contentTypeHeader, 'application/json');
-      if(apiKey != null) request.headers.add(io.HttpHeaders.authorizationHeader, 'Bearer $apiKey');
+      if(toolApiKey != null) request.headers.add(io.HttpHeaders.authorizationHeader, 'Bearer $toolApiKey');
 
       Map<String, dynamic> data = requestBody.toJson();
 

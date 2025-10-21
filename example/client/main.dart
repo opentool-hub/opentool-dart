@@ -1,7 +1,8 @@
 import 'package:opentool_dart/opentool_dart.dart';
+import '../server/main.dart';
 
 Future<void> main() async {
-  Client client = OpenToolClient(apiKey: "bb31b6a6-1fda-4214-8cd6-b1403842070c");
+  Client client = OpenToolClient(toolHost: HostType.LOCALHOST, toolPort: TOOL_PORT, toolApiKey: TOOL_API_KEYS[0]);
 
   // Check Version
   Version version = await client.version();

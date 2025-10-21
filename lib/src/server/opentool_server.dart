@@ -22,17 +22,17 @@ abstract class Server {
 }
 
 class OpenToolServer extends Server {
-  String ip = "0.0.0.0";
-  int port = DEFAULT_PORT;
+  late String ip;
+  late int port;
   String prefix = DEFAULT_PREFIX;
   List<String> apiKeys = const [];
   late HttpServer server;
   final _serverCompleter = Completer<HttpServer>();
 
-  OpenToolServer(Tool tool, String version, {String? ip, int? port, List<String>? apiKeys}) : super(tool, version) {
-    if(ip != null && ip.isNotEmpty) this.ip = ip;
-    if(port != null && port > 0) this.port = port;
-    if(apiKeys != null && apiKeys.isNotEmpty) this.apiKeys = apiKeys;
+  OpenToolServer(Tool tool, String version, {required String toolHost, required int toolPort, List<String>? toolApiKeys}) : super(tool, version) {
+    if(toolHost.isNotEmpty) this.ip = toolHost;
+    if(toolPort > 0) this.port = toolPort;
+    if(toolApiKeys != null && toolApiKeys.isNotEmpty) this.apiKeys = toolApiKeys;
   }
 
   @override

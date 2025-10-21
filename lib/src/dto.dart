@@ -3,8 +3,12 @@ import 'package:json_annotation/json_annotation.dart';
 part 'dto.g.dart';
 
 const String JSONRPC_VERSION = "2.0";
-const DEFAULT_PORT = 9627;
 const DEFAULT_PREFIX = "/opentool";
+
+class HostType{
+  static const String ANY = "0.0.0.0";
+  static const String LOCALHOST = "127.0.0.1";
+}
 
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
 class Version {
