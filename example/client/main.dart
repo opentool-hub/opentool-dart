@@ -8,7 +8,7 @@ Future<void> main() async {
   Version version = await client.version();
   print(version.toJson());
 
-  // Call Tool
+  // Call Tool 
   Map<String, dynamic> arguments = {};
   FunctionCall functionCall = FunctionCall(id: "callId-0", name: "count", arguments: arguments);
   ToolReturn toolReturn = await client.call(functionCall);

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:opentool_dart/src/server/model.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -33,6 +34,12 @@ class OpenToolServer extends Server {
     if(toolHost.isNotEmpty) this.ip = toolHost;
     if(toolPort > 0) this.port = toolPort;
     if(toolApiKeys != null && toolApiKeys.isNotEmpty) this.apiKeys = toolApiKeys;
+  }
+
+  OpenToolServer.fromLaunchInfo({required Tool tool, required LaunchInfo launchInfo}) : super(tool, launchInfo.version)  {
+    if(launchInfo.host.isNotEmpty) this.ip = launchInfo.host;
+    if(launchInfo.port > 0) this.port = launchInfo.port;
+    if(launchInfo.apiKeys.isNotEmpty) this.apiKeys = launchInfo.apiKeys;
   }
 
   @override
