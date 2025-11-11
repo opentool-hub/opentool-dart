@@ -11,15 +11,10 @@ class Controller {
   final Tool tool;
   final String version;
   Future<void> Function() onStop;
-  String? serverId;
   final Map<String, String> jsonHeaders = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive',};
   final Map<String, String> streamHeaders = {HttpHeaders.contentTypeHeader: 'text/event-stream', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive', 'Cache-Control': 'no-store',};
 
   Controller(this.tool, this.version, {required this.onStop});
-
-  void setServerId(String serverId) {
-    this.serverId = serverId;
-  }
 
   /// GET /version
   Future<Response> getVersion(Request request) async {
@@ -143,7 +138,7 @@ class Controller {
   Future<Response> stop(Request request) async {
     try {
       await tool.dispose();
-      final statusInfo = StatusInfo(status: StatusType.STOPPED, serverId: serverId??"NULL");
+      final statusInfo = StatusInfo(status: StatusType.STOPPED);
       final responseBody = statusInfo.toJson();
       unawaited(onStop());
       return Response.ok(

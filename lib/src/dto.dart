@@ -74,9 +74,8 @@ class StatusType {
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
 class StatusInfo {
   String status;
-  String serverId;
 
-  StatusInfo({required this.status, required this.serverId});
+  StatusInfo({required this.status});
 
   factory StatusInfo.fromJson(Map<String, dynamic> json) => _$StatusInfoFromJson(json);
 

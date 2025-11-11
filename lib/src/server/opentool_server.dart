@@ -29,7 +29,7 @@ class OpenToolServer extends Server {
   late HttpServer server;
   final _serverCompleter = Completer<HttpServer>();
 
-  OpenToolServer({required Tool tool, this.cliArguments}) : super(tool);
+  OpenToolServer({required Tool tool, required this.cliArguments}) : super(tool);
 
   Future<void> init() async {
     Map<String, dynamic>? cliArgs = cliArguments?.parse();
