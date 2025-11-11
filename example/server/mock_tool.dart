@@ -4,6 +4,19 @@ import 'mock_util.dart';
 
 class MockTool extends Tool {
   MockUtil mockUtil = MockUtil();
+
+  MockTool() {
+
+  }
+
+  @override
+  Future<Map<String, dynamic>?> init(Map<String, dynamic>? cliArgs) async {
+    List<String>? newValues = cliArgs?["newValues"] as List<String>?;
+    if(newValues != null && newValues.isNotEmpty) {
+      newValues.forEach((value) => mockUtil.create(value));
+    }
+    return cliArgs;
+  }
   
   @override
   Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {

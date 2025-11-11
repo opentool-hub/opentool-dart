@@ -15,7 +15,7 @@ class Controller {
   final Map<String, String> jsonHeaders = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive',};
   final Map<String, String> streamHeaders = {HttpHeaders.contentTypeHeader: 'text/event-stream', HttpHeaders.cacheControlHeader: 'no-cache', HttpHeaders.connectionHeader: 'keep-alive', 'Cache-Control': 'no-store',};
 
-  Controller(this.tool, this.version, this.onStop);
+  Controller(this.tool, this.version, {required this.onStop});
 
   void setServerId(String serverId) {
     this.serverId = serverId;

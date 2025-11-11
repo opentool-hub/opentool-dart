@@ -3,7 +3,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'dto.g.dart';
 
 const String JSONRPC_VERSION = "2.0";
-const DEFAULT_PREFIX = "/opentool";
+const String DEFAULT_PREFIX = "/opentool";
+const String DEFAULT_TOOL_TAG = "N/A";
+const String DEFAULT_TOOL_HOST = HostType.ANY;
+const int DEFAULT_TOOL_PORT = 17001;
+const String CLI_ARGUMENT_TAG = "opentoolServerTag";
+const String CLI_ARGUMENT_HOST = "opentoolServerHost";
+const String CLI_ARGUMENT_PORT = "opentoolServerPort";
+const String CLI_ARGUMENT_APIKEYS = "opentoolServerApiKeys";
 
 class HostType{
   static const String ANY = "0.0.0.0";
