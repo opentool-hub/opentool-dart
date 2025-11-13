@@ -7,9 +7,9 @@ List<String> TOOL_API_KEYS = ["6621c8a3-2110-4e6a-9d62-70ccd467e789", "bb31b6a6-
 Future<void> main(List<String>? args) async {
   List<String> cliArgs;
 
-  if(args != null && args.isNotEmpty) { // for true CLI
+  if(args != null && args.isNotEmpty) { // for true CLI args
     cliArgs = args;
-  } else {  // for simulation CLI
+  } else {  // for simulation CLI args
     cliArgs = [
       "--newValues", "Foo",
       "--newValues", "bar",
