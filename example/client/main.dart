@@ -1,4 +1,4 @@
-import 'package:opentool_dart/opentool_dart.dart';
+import 'package:opentool_dart/opentool_client.dart';
 import '../server/main.dart';
 
 Future<void> main() async {

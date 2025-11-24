@@ -1,4 +1,4 @@
-import 'package:opentool_dart/opentool_dart.dart';
+import 'package:opentool_dart/opentool_server.dart';
 import 'dart:io' as io;
 import 'mock_util.dart';
 

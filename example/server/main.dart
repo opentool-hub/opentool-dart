@@ -1,4 +1,4 @@
-import 'package:opentool_dart/opentool_dart.dart';
+import 'package:opentool_dart/opentool_server.dart';
 import 'mock_tool.dart';
 
 int TOOL_PORT = 17002;

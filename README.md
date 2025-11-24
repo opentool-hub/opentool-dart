@@ -2,14 +2,20 @@
 
 English | [中文](README-zh_CN.md)
 
-OpenTool SDK for Dart provides a lightweight Shelf server, an HTTP/JSON-RPC client, and a JSON specification loader so that OpenTool-compatible agents can be hosted and consumed from pure Dart code.
+OpenTool SDK for Dart ships the building blocks required to host or consume OpenTool-compatible agents: a Shelf-based HTTP/JSON-RPC server, an HTTP client with unary + SSE calls, and a JSON schema loader. Everything is pure Dart so you can embed the tool runtime anywhere the Dart VM runs.
+
+## Library Entrypoints
+
+- `package:opentool_dart/opentool_server.dart` — server runtime, CLI helpers, and Tool base class.
+- `package:opentool_dart/opentool_client.dart` — HTTP/JSON-RPC client plus DTO/LLM models.
+- `package:opentool_dart/opentool_schema.dart` — JSON specification models and loader.
 
 ## Features
 
-- `OpenToolServer` exposes `/opentool` JSON-RPC endpoints backed by your own `Tool` implementation.
-- `OpenToolClient` wraps version checks, unary calls, streaming calls (Server-Sent Events), metadata discovery, and shutdown.
-- `OpenToolJsonLoader` parses OpenTool JSON specs (for example, the files in `json/`) and wires `$ref` schemas into strongly typed Dart objects.
-- Example apps in `example/server` and `example/client` showcase a full CRUD tool plus streaming output.
+- `OpenToolServer` mounts `/opentool` JSON-RPC endpoints backed by your `Tool` implementation and optional API-key auth.
+- `OpenToolClient` covers versions, unary `call`, SSE `streamCall`, metadata `load`, and remote `stop`.
+- `OpenToolJsonLoader` parses OpenTool JSON specs (see `json/` or `example/json-example`) and resolves `$ref` schemas.
+- Example apps in `example/server` and `example/client` demonstrate CRUD flows, streaming reads, and CLI overrides via `CliArguments`.
 
 ## Requirements
 
@@ -39,10 +45,17 @@ Run `dart pub get` afterwards.
 
 ```dart
 import 'dart:io' as io;
-import 'package:opentool_dart/opentool_dart.dart';
+import 'package:opentool_dart/opentool_server.dart';
 
 class MockTool extends Tool {
   final MockUtil mockUtil = MockUtil();
+
+  @override
+  Future<Map<String, dynamic>?> init(Map<String, dynamic>? cliArgs) async {
+    final seeds = cliArgs?["newValues"] as List<String>?;
+    seeds?.forEach(mockUtil.create);
+    return cliArgs;
+  }
 
   @override
   Future<Map<String, dynamic>> call(String name, Map<String, dynamic>? arguments) async {
@@ -70,29 +83,46 @@ class MockTool extends Tool {
 }
 ```
 
-### Run the server
+### Launch the server
 
 ```sh
 dart run example/server/main.dart \
   --opentoolServerTag 1.0.0 \
   --opentoolServerHost 0.0.0.0 \
-  --opentoolServerPort 17001 \
-  --opentoolServerApiKeys your-key
+  --opentoolServerPort 17002 \
+  --opentoolServerApiKeys your-key \
+  --newValues Foo \
+  --newValues Bar
 ```
 
-You can add custom CLI switches via `CliArguments.addCustomOption` / `addCustomMultiOption` for domain-specific configuration before the Tool initializes.
+`CliArguments` feeds these switches into `Tool.init`, so you can hydrate dependencies or load fixtures before handlers accept requests.
 
 ### Call the tool from Dart
 
 ```dart
+import 'package:opentool_dart/opentool_client.dart';
+
 Future<void> main() async {
-  final client = OpenToolClient(toolHost: HostType.LOCALHOST, toolPort: 17001, toolApiKey: 'your-key');
+  final client = OpenToolClient(
+    toolHost: HostType.LOCALHOST,
+    toolPort: 17002,
+    toolApiKey: 'your-key',
+  );
+
   final version = await client.version();
-  final response = await client.call(FunctionCall(id: uniqueId(), name: 'count', arguments: {}));
+  print(version.toJson());
+
+  final unary = await client.call(FunctionCall(id: 'call-0', name: 'count', arguments: {}));
+  print(unary.toJson());
+
   await client.streamCall(
-    FunctionCall(id: uniqueId(), name: 'sequentiallyRead', arguments: {}),
+    FunctionCall(id: 'call-1', name: 'sequentiallyRead', arguments: {}),
     (event, toolReturn) => print('$event ${toolReturn.result}'),
   );
+
+  final openTool = await client.load();
+  print(openTool?.toJson());
+
   await client.stop();
 }
 ```
@@ -105,13 +135,13 @@ Future<void> main() async {
 
 ## JSON Specification Loader
 
-- Store OpenTool specs under `json/` (see `database-example.json` and `weather-example.json`).
-- Use `OpenToolJsonLoader().loadFromFile(path)` to populate `OpenTool` + schema graph, or call `load(jsonString)` when fetching from a remote registry.
-- Refer to the [OpenTool specification](https://github.com/opentool-hub/opentool-spec) for schema structure and `$ref` semantics.
+- Import `package:opentool_dart/opentool_schema.dart` when you only need the spec models.
+- Store OpenTool specs under `json/` or `example/json-example`. `OpenToolJsonLoader().loadFromFile(path)` builds the `OpenTool` tree and resolves `$ref` schemas; use `load(jsonString)` for remote inputs.
+- Refer to the [OpenTool specification](https://github.com/opentool-hub/opentool-spec) for field semantics.
 
-## Development & Testing
+## Examples & Development
 
-- Install deps: `dart pub get`.
-- Lint and format: `dart analyze` and `dart format lib example json`.
-- Add tests under `test/` mirroring the `lib/` structure and run them with `dart test`.
-- When contributing, please document new CLI flags and endpoints in `README.md` so others stay in sync.
+- Sample server/client pairs live in `example/server` and `example/client`; run them with `dart run example/server/main.dart` and `dart run example/client/main.dart`.
+- Standalone schema fixtures are under `example/json-example` and `json/`.
+- Developer workflow: `dart pub get`, `dart analyze`, `dart format lib example json`, and `dart test`.
+- Document any new CLI flags, HTTP endpoints, or schema fields here to keep downstream SDKs aligned.

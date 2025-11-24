@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:dio/dio.dart';
-import '../../opentool_dart.dart';
+import 'package:opentool_dart/opentool_server.dart';
+import 'exception.dart';
 
 abstract class Client {
   Future<Version> version();
