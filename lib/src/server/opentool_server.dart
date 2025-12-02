@@ -5,15 +5,15 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'cli_arguments.dart';
 import '../dto.dart';
-import '../tool/tool.dart';
+import 'cli_tool.dart';
 import 'controller.dart';
 import 'middleware.dart';
 import 'route.dart';
 
 abstract class Server {
-  Tool tool;
+  CliTool cliTool;
 
-  Server(this.tool);
+  Server({required this.cliTool});
 
   Future<void> start();
   Future<void> stop();
@@ -29,11 +29,11 @@ class OpenToolServer extends Server {
   late HttpServer server;
   final _serverCompleter = Completer<HttpServer>();
 
-  OpenToolServer({required Tool tool, required this.cliArguments}) : super(tool);
+  OpenToolServer({required super.cliTool, required this.cliArguments});
 
-  Future<void> init() async {
+  Future<void> initCli() async {
     Map<String, dynamic>? cliArgs = cliArguments?.parse();
-    Map<String, dynamic>? newCliArgs = await tool.init(cliArgs);
+    Map<String, dynamic>? newCliArgs = await cliTool.initArgs(cliArgs);
     if(newCliArgs == null) newCliArgs = cliArgs;
 
     String? toolTag = newCliArgs?[CLI_ARGUMENT_TAG] as String?;
@@ -61,9 +61,10 @@ class OpenToolServer extends Server {
 
   @override
   Future<void> start() async {
-    await init();
+    await initCli();
+    await cliTool.init();
 
-    Controller controller = Controller(tool, version, onStop: stop);
+    Controller controller = Controller(cliTool, version, onStop: stop);
 
     opentoolRoutes(controller);
 

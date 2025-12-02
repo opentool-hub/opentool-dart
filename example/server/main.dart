@@ -24,7 +24,7 @@ Future<void> main(List<String>? args) async {
   CliArguments cliArguments = CliArguments(cliArgs)
     .addCustomMultiOption('newValues', help: 'Demo to customize args, will add new values. e.g. --newValues Foo --newValues Bar');
 
-  Tool tool = MockTool();
-  Server server = OpenToolServer(tool: tool, cliArguments: cliArguments);
+  CliTool tool = MockTool();
+  Server server = OpenToolServer(cliTool: tool, cliArguments: cliArguments);
   await server.start();
 }

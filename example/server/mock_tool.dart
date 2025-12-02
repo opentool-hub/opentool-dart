@@ -2,11 +2,11 @@ import 'package:opentool_dart/opentool_server.dart';
 import 'dart:io' as io;
 import 'mock_util.dart';
 
-class MockTool extends Tool {
+class MockTool extends CliTool {
   MockUtil mockUtil = MockUtil();
 
   @override
-  Future<Map<String, dynamic>?> init(Map<String, dynamic>? cliArgs) async {
+  Future<Map<String, dynamic>?> initArgs(Map<String, dynamic>? cliArgs) async {
     List<String>? newValues = cliArgs?["newValues"] as List<String>?;
     if(newValues != null && newValues.isNotEmpty) {
       newValues.forEach((value) => mockUtil.create(value));
