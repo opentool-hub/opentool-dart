@@ -7,7 +7,7 @@ import 'exception.dart';
 abstract class Client {
   Future<Version> version();
   Future<ToolReturn> call(FunctionCall functionCall);
-  Future<void> streamCall(FunctionCall functionCall, void Function(String event, Map<String, dynamic> payload) onStream);
+  Future<void> streamCall(FunctionCall functionCall, void Function(String event, ToolReturn toolReturn) onStream);
   Future<OpenTool?> load() async => null;
   Future<StatusInfo?> stop();
 }
@@ -94,7 +94,7 @@ class OpenToolClient extends Client {
   }
 
 
-  Future<void> streamCall(FunctionCall functionCall, void Function(String event, Map<String, dynamic> payload) onStream) async {
+  Future<void> streamCall(FunctionCall functionCall, void Function(String event, ToolReturn toolReturn) onStream) async {
 
     Stream<String> sseStream = await _streamCallJsonRpcHttp(
         functionCall.id,
@@ -105,18 +105,18 @@ class OpenToolClient extends Client {
     sseStream.listen((sseString) {
       _onData(sseString, (String event, Map<String, dynamic> data) {
         if(event == EventType.START) {
-          onStream(event, ToolReturn(id: functionCall.id, result: data).toJson());
+          onStream(event, ToolReturn(id: functionCall.id, result: data));
         } else if(event == EventType.DATA || event == EventType.ERROR) {
           JsonRPCHttpResponseBody responseBody = JsonRPCHttpResponseBody.fromJson(data);
           if (responseBody.error != null) {
             throw OpenToolServerCallException(responseBody.error!.message);
           }
-          onStream(event, ToolReturn(id: functionCall.id, result: responseBody.result).toJson());
+          onStream(event, ToolReturn(id: functionCall.id, result: responseBody.result));
         }
       });
     },
         onDone: () {
-          onStream(EventType.DONE, ToolReturn(id: functionCall.id, result: {EventType.DONE: functionCall.name}).toJson());
+          onStream(EventType.DONE, ToolReturn(id: functionCall.id, result: {EventType.DONE: functionCall.name}));
         },
         onError: (e) {
           throw OpenToolServerCallException(e.toString());
