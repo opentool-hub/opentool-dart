@@ -62,9 +62,6 @@ class MockTool extends CliTool {
       await mockUtil.sequentiallyRead((String data) {
         sendEvent(EventType.DATA, {"data": data});
       });
-      sendEvent(EventType.DONE, {});
-
-      /// REQUIRED: send DONE event to close the stream.
     } else {
       sendEvent(
         EventType.ERROR,

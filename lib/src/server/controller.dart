@@ -6,6 +6,7 @@ import '../tool/exception.dart';
 import '../tool/model.dart';
 import '../tool/tool.dart';
 import '../dto.dart';
+import 'exception.dart';
 
 class Controller {
   final Tool tool;
@@ -33,20 +34,45 @@ class Controller {
 
   /// POST /call
   Future<Response> call(Request request) async {
+    final contentType = request.headers['Content-Type'] ?? '';
+    if (!contentType.contains('application/json')) {
+      return Response(
+        400,
+        body: jsonEncode({'error': 'Content-Type must be application/json'}),
+        headers: jsonHeaders,
+      );
+    }
+
+    final payload = await request.readAsString();
+
+    Map<String, dynamic> data;
     try {
-      final contentType = request.headers['Content-Type'] ?? '';
-      if (!contentType.contains('application/json')) {
-        return Response(
-          400,
-          body: jsonEncode({'error': 'Content-Type must be application/json'}),
-          headers: jsonHeaders,
+      final decoded = jsonDecode(payload);
+      if (decoded is! Map<String, dynamic>) {
+        return _jsonParseErrorResponse(
+          const InvalidJsonPayloadException(),
         );
       }
+      data = decoded;
+    } catch (e) {
+      return _jsonParseErrorResponse(
+        JsonParseException(message: e.toString()),
+      );
+    }
 
-      final payload = await request.readAsString();
-      final data = jsonDecode(payload);
-      final body = JsonRPCHttpRequestBody.fromJson(data);
+    final requestId = data['id']?.toString();
 
+    late JsonRPCHttpRequestBody body;
+    try {
+      body = JsonRPCHttpRequestBody.fromJson(data);
+    } catch (e) {
+      return _jsonParseErrorResponse(
+        JsonParseException(message: e.toString()),
+        id: requestId,
+      );
+    }
+
+    try {
       final result = await tool.call(body.method, body.params);
       final responseBody = JsonRPCHttpResponseBody(result: result, id: body.id);
 
@@ -61,7 +87,7 @@ class Controller {
       );
       final responseBody = JsonRPCHttpResponseBody(
         result: {},
-        id: '',
+        id: body.id,
         error: error,
       );
       return Response.ok(
@@ -73,6 +99,15 @@ class Controller {
 
   /// POST /streamCall
   Future<Response> streamCall(Request request) async {
+    final contentType = request.headers['Content-Type'] ?? '';
+    if (!contentType.contains('application/json')) {
+      return Response(
+        400,
+        body: jsonEncode({'error': 'Content-Type must be application/json'}),
+        headers: jsonHeaders,
+      );
+    }
+
     final payload = await request.readAsString();
 
     try {
@@ -88,33 +123,63 @@ class Controller {
         jsonEncode({EventType.START: body.method}),
       );
 
-      await tool.streamCall(body.method, body.params, (
-        String event,
-        Map<String, dynamic> data,
-      ) {
-        if (event == EventType.DATA) {
-          final responseBody = JsonRPCHttpResponseBody(
-            result: data,
-            id: body.id,
+      unawaited(() async {
+        try {
+          await tool.streamCall(body.method, body.params, (
+            String event,
+            Map<String, dynamic> data,
+          ) {
+            if (event == EventType.DATA) {
+              final responseBody = JsonRPCHttpResponseBody(
+                result: data,
+                id: body.id,
+              );
+              _pushData(
+                streamController,
+                event,
+                jsonEncode(responseBody.toJson()),
+              );
+            } else if (event == EventType.ERROR) {
+              /// Service Error, through Stream onData, then Close Stream
+              final error = JsonRPCHttpResponseBodyError(
+                code: data['code'] ?? 500,
+                message: data['message'] ?? jsonEncode(data),
+              );
+              final responseBody = JsonRPCHttpResponseBody(
+                result: {},
+                id: body.id,
+                error: error,
+              );
+              _pushData(
+                streamController,
+                event,
+                jsonEncode(responseBody.toJson()),
+              );
+              streamController.close();
+            }
+          });
+        } catch (e) {
+          _pushData(
+            streamController,
+            EventType.ERROR,
+            jsonEncode({
+              'code': 500,
+              'message': e.toString(),
+              'id': body.id,
+            }),
           );
-          _pushData(streamController, event, jsonEncode(responseBody.toJson()));
-        } else if (event == EventType.ERROR) {
-          /// Service Error, through Stream onData, then Close Stream
-          final error = JsonRPCHttpResponseBodyError(
-            code: data['code'] ?? 500,
-            message: data['message'] ?? jsonEncode(data),
-          );
-          final responseBody = JsonRPCHttpResponseBody(
-            result: {},
-            id: body.id,
-            error: error,
-          );
-          _pushData(streamController, event, jsonEncode(responseBody.toJson()));
           streamController.close();
-        } else if (event == EventType.DONE) {
-          streamController.close();
+        } finally {
+          if (!streamController.isClosed) {
+            _pushData(
+              streamController,
+              EventType.DONE,
+              jsonEncode({EventType.DONE: body.method}),
+            );
+            streamController.close();
+          }
         }
-      });
+      }());
 
       return Response.ok(
         streamController.stream,
@@ -126,6 +191,21 @@ class Controller {
 
       /// FATAL error, will trigger Stream onError
     }
+  }
+
+  Response _jsonParseErrorResponse(ServerException exception, {String? id}) {
+    final responseBody = {
+      'jsonrpc': JSONRPC_VERSION,
+      'result': <String, dynamic>{},
+      'error': exception.toJson(),
+      'id': id,
+    };
+
+    return Response(
+      400,
+      body: jsonEncode(responseBody),
+      headers: jsonHeaders,
+    );
   }
 
   void _pushData(

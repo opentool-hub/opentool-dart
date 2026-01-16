@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:dio/dio.dart';
@@ -124,6 +125,8 @@ class OpenToolClient extends Client {
       functionCall.arguments,
     );
 
+    final completer = Completer<void>();
+
     sseStream.listen(
       (sseString) {
         _onData(sseString, (String event, Map<String, dynamic> data) {
@@ -150,11 +153,16 @@ class OpenToolClient extends Client {
             result: {EventType.DONE: functionCall.name},
           ),
         );
+        if (!completer.isCompleted) completer.complete();
       },
       onError: (e) {
-        throw OpenToolServerCallException(e.toString());
+        if (!completer.isCompleted) {
+          completer.completeError(OpenToolServerCallException(e.toString()));
+        }
       },
     );
+
+    return completer.future;
   }
 
   Future<Stream<String>> _streamCallJsonRpcHttp(

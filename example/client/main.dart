@@ -29,8 +29,8 @@ Future<void> main() async {
     name: "sequentiallyRead",
     arguments: arguments1,
   );
-  await client.streamCall(functionCall1, (event, payload) {
-    print(payload);
+  await client.streamCall(functionCall1, (event, toolReturn) {
+    print(toolReturn.toJson());
   });
 
   // Load OpenTool
