@@ -7,7 +7,10 @@ class FunctionCall {
 
   factory FunctionCall.fromJson(Map<String, dynamic> json) {
     return FunctionCall(
-        id: json['id'], name: json['name'], arguments: json['arguments']);
+      id: json['id'],
+      name: json['name'],
+      arguments: json['arguments'],
+    );
   }
 
   Map<String, dynamic> toJson() {

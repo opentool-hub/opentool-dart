@@ -9,12 +9,24 @@ class FunctionModel {
   String name;
   String description;
   List<Parameter> parameters;
-  @JsonKey(name: "return") Return? return_; /// for once return
-  Map<String, Return>? stream; /// eventName -> Schema, for streaming return
+  @JsonKey(name: "return")
+  Return? return_;
 
-  FunctionModel({required this.name, required this.description, required this.parameters, this.return_, this.stream});
+  /// for once return
+  Map<String, Return>? stream;
 
-  factory FunctionModel.fromJson(Map<String, dynamic> json) => _$FunctionModelFromJson(json);
+  /// eventName -> Schema, for streaming return
+
+  FunctionModel({
+    required this.name,
+    required this.description,
+    required this.parameters,
+    this.return_,
+    this.stream,
+  });
+
+  factory FunctionModel.fromJson(Map<String, dynamic> json) =>
+      _$FunctionModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$FunctionModelToJson(this);
 }

@@ -14,9 +14,16 @@ class OpenTool {
   List<FunctionModel> functions;
   Map<String, Schema>? schemas;
 
-  OpenTool({required this.opentool, required this.info, this.server, required this.functions, this.schemas});
+  OpenTool({
+    required this.opentool,
+    required this.info,
+    this.server,
+    required this.functions,
+    this.schemas,
+  });
 
-  factory OpenTool.fromJson(Map<String, dynamic> json) => _$OpenToolFromJson(json);
+  factory OpenTool.fromJson(Map<String, dynamic> json) =>
+      _$OpenToolFromJson(json);
 
   Map<String, dynamic> toJson() => _$OpenToolToJson(this);
 }

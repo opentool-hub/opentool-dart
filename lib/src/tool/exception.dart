@@ -4,14 +4,16 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'exception.g.dart';
 
-@JsonSerializable(explicitToJson: true, includeIfNull: false, createFactory: false)
+@JsonSerializable(
+  explicitToJson: true,
+  includeIfNull: false,
+  createFactory: false,
+)
 class FunctionNotSupportedException implements Exception {
   final int code = 405;
   late String message;
 
-  FunctionNotSupportedException({
-    required String functionName,
-  }) {
+  FunctionNotSupportedException({required String functionName}) {
     this.message = "Function Not Supported: $functionName";
   }
 
@@ -21,12 +23,16 @@ class FunctionNotSupportedException implements Exception {
   String toString() => jsonEncode(this.toJson());
 }
 
-@JsonSerializable(explicitToJson: true, includeIfNull: false, createFactory: false)
+@JsonSerializable(
+  explicitToJson: true,
+  includeIfNull: false,
+  createFactory: false,
+)
 class InvalidArgumentsException implements Exception {
   final int code = 400;
   late String message;
 
-  InvalidArgumentsException({required Map<String, dynamic>? arguments,}) {
+  InvalidArgumentsException({required Map<String, dynamic>? arguments}) {
     this.message = "Invalid Arguments: ${jsonEncode(arguments)}";
   }
 
@@ -37,7 +43,11 @@ class InvalidArgumentsException implements Exception {
 }
 
 /// When client catch `ToolBreakException`. The client should be stopped calling.
-@JsonSerializable(explicitToJson: true, includeIfNull: false, createFactory: false)
+@JsonSerializable(
+  explicitToJson: true,
+  includeIfNull: false,
+  createFactory: false,
+)
 class ToolBreakException implements Exception {
   final int code = 500;
   late String? message;
@@ -50,7 +60,11 @@ class ToolBreakException implements Exception {
   String toString() => jsonEncode(this.toJson());
 }
 
-@JsonSerializable(explicitToJson: true, includeIfNull: false, createFactory: false)
+@JsonSerializable(
+  explicitToJson: true,
+  includeIfNull: false,
+  createFactory: false,
+)
 class JsonParserException implements Exception {
   final int code = 404;
   late String message = "Json Parser NOT implement";

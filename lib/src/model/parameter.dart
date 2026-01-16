@@ -10,9 +10,15 @@ class Parameter {
   Schema schema;
   bool required;
 
-  Parameter({required this.name, this.description, required this.schema, required this.required});
+  Parameter({
+    required this.name,
+    this.description,
+    required this.schema,
+    required this.required,
+  });
 
-  factory Parameter.fromJson(Map<String, dynamic> json) => _$ParameterFromJson(json);
+  factory Parameter.fromJson(Map<String, dynamic> json) =>
+      _$ParameterFromJson(json);
 
   Map<String, dynamic> toJson() => _$ParameterToJson(this);
 }

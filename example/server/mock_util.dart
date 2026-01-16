@@ -14,10 +14,11 @@ class MockUtil {
     return storage[id];
   }
 
-  void sequentiallyRead(void Function(String data) onData) {
-    storage.forEach((String data) {
+  Future<void> sequentiallyRead(void Function(String data) onData) async {
+    for (final data in storage) {
       onData(data);
-    });
+      await Future<void>.delayed(const Duration(milliseconds: 2000));
+    }
   }
 
   void update(int id, String text) {

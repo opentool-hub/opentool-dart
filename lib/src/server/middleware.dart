@@ -9,7 +9,9 @@ Middleware checkAuthorization(List<String> validApiKeys) {
 
       if (authorizationHeader == null ||
           !authorizationHeader.startsWith(tokenPrefix)) {
-        return Response.unauthorized('Missing or malformed authorization header');
+        return Response.unauthorized(
+          'Missing or malformed authorization header',
+        );
       }
 
       final token = authorizationHeader.substring(tokenPrefix.length);

@@ -34,25 +34,28 @@ class OpenToolServer extends Server {
   Future<void> initCli() async {
     Map<String, dynamic>? cliArgs = cliArguments?.parse();
     Map<String, dynamic>? newCliArgs = await cliTool.initArgs(cliArgs);
-    if(newCliArgs == null) newCliArgs = cliArgs;
+    if (newCliArgs == null) newCliArgs = cliArgs;
 
     String? toolTag = newCliArgs?[CLI_ARGUMENT_TAG] as String?;
     String? toolHost = newCliArgs?[CLI_ARGUMENT_HOST] as String?;
-    int? toolPort = newCliArgs?[CLI_ARGUMENT_PORT]==null? null :int.parse(newCliArgs![CLI_ARGUMENT_PORT]);
-    List<String>? toolApiKeys = newCliArgs?[CLI_ARGUMENT_APIKEYS] as List<String>?;
+    int? toolPort = newCliArgs?[CLI_ARGUMENT_PORT] == null
+        ? null
+        : int.parse(newCliArgs![CLI_ARGUMENT_PORT]);
+    List<String>? toolApiKeys =
+        newCliArgs?[CLI_ARGUMENT_APIKEYS] as List<String>?;
     this.version = toolTag ?? DEFAULT_TOOL_TAG;
-    if(toolHost != null && toolHost.isNotEmpty) {
+    if (toolHost != null && toolHost.isNotEmpty) {
       this.host = toolHost;
     } else {
       this.host = DEFAULT_TOOL_HOST;
     }
 
-    if(toolPort !=null && toolPort > 0) {
+    if (toolPort != null && toolPort > 0) {
       this.port = toolPort;
     } else {
       this.port = DEFAULT_TOOL_PORT;
     }
-    if(toolApiKeys != null && toolApiKeys.isNotEmpty) {
+    if (toolApiKeys != null && toolApiKeys.isNotEmpty) {
       this.apiKeys = toolApiKeys;
     } else {
       this.apiKeys = [];
@@ -71,7 +74,7 @@ class OpenToolServer extends Server {
     final Router mainRouter = Router();
     mainRouter.mount(prefix, jsonRpcHttpRouter);
     Pipeline pipeline = Pipeline();
-    if(apiKeys.isNotEmpty) {
+    if (apiKeys.isNotEmpty) {
       pipeline = pipeline.addMiddleware(checkAuthorization(this.apiKeys));
     }
     Handler handler = pipeline.addHandler(mainRouter);

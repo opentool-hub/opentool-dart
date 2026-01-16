@@ -12,7 +12,7 @@ const String CLI_ARGUMENT_HOST = "opentoolServerHost";
 const String CLI_ARGUMENT_PORT = "opentoolServerPort";
 const String CLI_ARGUMENT_APIKEYS = "opentoolServerApiKeys";
 
-class HostType{
+class HostType {
   static const String ANY = "0.0.0.0";
   static const String LOCALHOST = "127.0.0.1";
 }
@@ -23,7 +23,8 @@ class Version {
 
   Version({required this.version});
 
-  factory Version.fromJson(Map<String, dynamic> json) => _$VersionFromJson(json);
+  factory Version.fromJson(Map<String, dynamic> json) =>
+      _$VersionFromJson(json);
 
   Map<String, dynamic> toJson() => _$VersionToJson(this);
 }
@@ -35,9 +36,14 @@ class JsonRPCHttpRequestBody {
   Map<String, dynamic>? params;
   late String id;
 
-  JsonRPCHttpRequestBody({required this.method, required this.params, required this.id});
+  JsonRPCHttpRequestBody({
+    required this.method,
+    required this.params,
+    required this.id,
+  });
 
-  factory JsonRPCHttpRequestBody.fromJson(Map<String, dynamic> json) => _$JsonRPCHttpRequestBodyFromJson(json);
+  factory JsonRPCHttpRequestBody.fromJson(Map<String, dynamic> json) =>
+      _$JsonRPCHttpRequestBodyFromJson(json);
 
   Map<String, dynamic> toJson() => _$JsonRPCHttpRequestBodyToJson(this);
 }
@@ -50,7 +56,8 @@ class JsonRPCHttpResponseBody {
   String id;
   JsonRPCHttpResponseBody({required this.result, this.error, required this.id});
 
-  factory JsonRPCHttpResponseBody.fromJson(Map<String, dynamic> json) => _$JsonRPCHttpResponseBodyFromJson(json);
+  factory JsonRPCHttpResponseBody.fromJson(Map<String, dynamic> json) =>
+      _$JsonRPCHttpResponseBodyFromJson(json);
 
   Map<String, dynamic> toJson() => _$JsonRPCHttpResponseBodyToJson(this);
 }
@@ -62,7 +69,8 @@ class JsonRPCHttpResponseBodyError {
 
   JsonRPCHttpResponseBodyError({required this.code, required this.message});
 
-  factory JsonRPCHttpResponseBodyError.fromJson(Map<String, dynamic> json) => _$JsonRPCHttpResponseBodyErrorFromJson(json);
+  factory JsonRPCHttpResponseBodyError.fromJson(Map<String, dynamic> json) =>
+      _$JsonRPCHttpResponseBodyErrorFromJson(json);
 
   Map<String, dynamic> toJson() => _$JsonRPCHttpResponseBodyErrorToJson(this);
 }
@@ -77,7 +85,8 @@ class StatusInfo {
 
   StatusInfo({required this.status});
 
-  factory StatusInfo.fromJson(Map<String, dynamic> json) => _$StatusInfoFromJson(json);
+  factory StatusInfo.fromJson(Map<String, dynamic> json) =>
+      _$StatusInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$StatusInfoToJson(this);
 }

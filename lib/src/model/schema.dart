@@ -13,22 +13,30 @@ class SchemaType {
 
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
 class Schema {
-  String type;  // data_type: boolean, integer, number, string, array, object
+  String type; // data_type: boolean, integer, number, string, array, object
   String? description;
-  Map<String, Schema>? properties;  // for object
-  Schema? items;  // for array
-  @JsonKey(name: "enum") List<Object?>? enum_;// for enum
+  Map<String, Schema>? properties; // for object
+  Schema? items; // for array
+  @JsonKey(name: "enum")
+  List<Object?>? enum_; // for enum
   List<String>? required;
 
-  Schema({required this.type, this.description, this.properties, this.items, this.enum_, this.required});
+  Schema({
+    required this.type,
+    this.description,
+    this.properties,
+    this.items,
+    this.enum_,
+    this.required,
+  });
 
   factory Schema.fromJson(Map<String, dynamic> json) {
     if (json["\$ref"] != null) {
-      Schema schema =  _fromRef(json["\$ref"] as String);
+      Schema schema = _fromRef(json["\$ref"] as String);
       schema._validateEnumConsistency();
       return schema;
     }
-    Schema schema =  _$SchemaFromJson(json);
+    Schema schema = _$SchemaFromJson(json);
     schema._validateEnumConsistency();
     return schema;
   }
@@ -57,7 +65,9 @@ class Schema {
     for (var i = 0; i < enum_!.length; i++) {
       var value = enum_![i];
       if (!_isValueConsistentWithType(value)) {
-        throw FormatException('Enum value at index $i ("$value") does not match schema type "$type".');
+        throw FormatException(
+          'Enum value at index $i ("$value") does not match schema type "$type".',
+        );
       }
     }
   }

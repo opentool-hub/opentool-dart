@@ -10,8 +10,8 @@ class OpenToolJsonLoader {
     Map<String, dynamic> openToolMap = jsonDecode(jsonString);
     schemasJson = openToolMap["schemas"];
     if (schemasJson != null) {
-        SchemasSingleton.initInstance(schemasJson!);
-      }
+      SchemasSingleton.initInstance(schemasJson!);
+    }
     OpenTool openTool = OpenTool.fromJson(openToolMap);
     return openTool;
   }
