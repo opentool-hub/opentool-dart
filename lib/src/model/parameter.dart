@@ -8,13 +8,14 @@ class Parameter {
   String name;
   String? description;
   Schema schema;
+  @JsonKey(defaultValue: false)
   bool required;
 
   Parameter({
     required this.name,
     this.description,
     required this.schema,
-    required this.required,
+    this.required = false,
   });
 
   factory Parameter.fromJson(Map<String, dynamic> json) =>
