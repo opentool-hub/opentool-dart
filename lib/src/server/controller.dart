@@ -49,15 +49,11 @@ class Controller {
     try {
       final decoded = jsonDecode(payload);
       if (decoded is! Map<String, dynamic>) {
-        return _jsonParseErrorResponse(
-          const InvalidJsonPayloadException(),
-        );
+        return _jsonParseErrorResponse(const InvalidJsonPayloadException());
       }
       data = decoded;
     } catch (e) {
-      return _jsonParseErrorResponse(
-        JsonParseException(message: e.toString()),
-      );
+      return _jsonParseErrorResponse(JsonParseException(message: e.toString()));
     }
 
     final requestId = data['id']?.toString();
@@ -162,11 +158,7 @@ class Controller {
           _pushData(
             streamController,
             EventType.ERROR,
-            jsonEncode({
-              'code': 500,
-              'message': e.toString(),
-              'id': body.id,
-            }),
+            jsonEncode({'code': 500, 'message': e.toString(), 'id': body.id}),
           );
           streamController.close();
         } finally {
@@ -201,11 +193,7 @@ class Controller {
       'id': id,
     };
 
-    return Response(
-      400,
-      body: jsonEncode(responseBody),
-      headers: jsonHeaders,
-    );
+    return Response(400, body: jsonEncode(responseBody), headers: jsonHeaders);
   }
 
   void _pushData(

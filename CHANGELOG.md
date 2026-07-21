@@ -1,3 +1,7 @@
+## 2.0.1
+
+- default `Parameter.required` to `false` when omitted
+
 ## 2.0.0
 
 - following OpenTool Spec 2.0.0, add stream return support
