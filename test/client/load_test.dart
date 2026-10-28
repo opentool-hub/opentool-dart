@@ -21,7 +21,11 @@ void main() {
 
       final openTool = await client.load();
 
-      expect(openTool!.functions.single.parameters.single.schema.type, [
+      expect(
+        openTool!.functions.single.parameters.single.schema.type,
+        'string',
+      );
+      expect(openTool.functions.single.parameters.single.schema.typeUnion, [
         'string',
         'null',
       ]);

@@ -1,7 +1,8 @@
-## 3.0.0
+## 2.1.0
 
 - resolve local schema references per OpenTool document, including forward references
 - support union types, `oneOf`, `anyOf`, `allOf`, and schema-valued `additionalProperties`
+- retain the `String`-typed `Schema.type` and legacy schema registry API; expose unions through `typeUnion`
 - report unsupported schema keywords and invalid references with their schema paths
 - propagate `/load` errors and return null only for an explicit tool-not-found response
 

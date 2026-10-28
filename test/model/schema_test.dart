@@ -6,13 +6,15 @@ void main() {
     test(
       'loads the checked-in tool document through OpenToolJsonLoader',
       () async {
-        final openTool = await OpenToolJsonLoader().loadFromFile(
+        final loader = OpenToolJsonLoader();
+        final openTool = await loader.loadFromFile(
           'example/server/mock_tool.json',
         );
 
         expect(openTool.functions, isNotEmpty);
         expect(openTool.schemas, hasLength(3));
         expect(openTool.functions.first.return_!.schema.type, 'integer');
+        expect(loader.schemasJson, hasLength(3));
       },
     );
 
@@ -70,7 +72,8 @@ void main() {
         'additionalProperties': {'type': 'integer'},
       });
 
-      expect(schema.type, ['string', 'null']);
+      expect(schema.type, 'string');
+      expect(schema.typeUnion, ['string', 'null']);
       expect(schema.oneOf, hasLength(2));
       expect(schema.anyOf, hasLength(1));
       expect(schema.allOf, hasLength(1));
@@ -139,6 +142,20 @@ void main() {
 
       expect(error.message, contains('Value'));
       expect(error.message, contains('not found'));
+    });
+
+    test('keeps the legacy Schema type and singleton APIs working', () {
+      final String legacyType = Schema.fromJson({'type': 'string'}).type;
+      expect(legacyType, 'string');
+
+      // ignore: deprecated_member_use
+      SchemasSingleton.initInstance({
+        'LegacyValue': {'type': 'integer'},
+      });
+      expect(
+        Schema.fromJson({r'$ref': '#/schemas/LegacyValue'}).type,
+        'integer',
+      );
     });
 
     test('reports recursive references clearly', () {

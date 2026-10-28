@@ -20,11 +20,14 @@ class SchemaType {
 
 /// A supported subset of JSON Schema used by OpenTool function signatures.
 ///
-/// [type] accepts either one JSON Schema type name or a list of type names.
-/// Composition is supported through [oneOf], [anyOf], and [allOf].
+/// [type] keeps the legacy single type value. Union schemas expose the complete
+/// set through [typeUnion]. Composition is supported through [oneOf], [anyOf],
+/// and [allOf].
 class Schema {
-  /// A single type name or a union of type names, such as `['string', 'null']`.
-  Object? type;
+  /// The legacy single type field. For a union, this is the first member.
+  /// Read [typeUnion] to get every member of a union type.
+  String type;
+  List<String>? typeUnion;
   String? description;
   Map<String, Schema>? properties;
   Schema? items;
@@ -37,9 +40,11 @@ class Schema {
   List<Schema>? oneOf;
   List<Schema>? anyOf;
   List<Schema>? allOf;
+  final bool _hasType;
 
   Schema({
-    this.type,
+    required this.type,
+    this.typeUnion,
     this.description,
     this.properties,
     this.items,
@@ -49,14 +54,36 @@ class Schema {
     this.oneOf,
     this.anyOf,
     this.allOf,
-  });
+  }) : _hasType = true;
+
+  /// Whether the input schema contained a `type` keyword.
+  bool get hasType => _hasType;
+
+  Schema._parsed({
+    String? type,
+    this.typeUnion,
+    this.description,
+    this.properties,
+    this.items,
+    this.additionalProperties,
+    this.enum_,
+    this.required,
+    this.oneOf,
+    this.anyOf,
+    this.allOf,
+  }) : type = type ?? '',
+       _hasType = type != null;
 
   factory Schema.fromJson(Map<String, dynamic> json) =>
-      SchemaResolver().parseSchema(json);
+      SchemaResolver(SchemasSingleton._definitions).parseSchema(json);
 
   Map<String, dynamic> toJson() {
     final result = <String, dynamic>{};
-    if (type != null) result['type'] = type;
+    if (typeUnion != null) {
+      result['type'] = typeUnion;
+    } else if (_hasType) {
+      result['type'] = type;
+    }
     if (description != null) result['description'] = description;
     if (properties != null) {
       result['properties'] = properties!.map(
@@ -175,14 +202,22 @@ class SchemaResolver {
         if (description == null) return target;
         return _copyWithDescription(target, description as String);
       }
-      return Schema(
+      return Schema._parsed(
         description: description as String? ?? target.description,
         allOf: [target, _parseSchema(siblingJson, path)],
       );
     }
 
     final rawType = json['type'];
-    final type = rawType == null ? null : _parseType(rawType, '$path.type');
+    final parsedType = rawType == null
+        ? null
+        : _parseType(rawType, '$path.type');
+    final type = parsedType is String
+        ? parsedType
+        : parsedType is List<String>
+        ? parsedType.first
+        : null;
+    final typeUnion = parsedType is List<String> ? parsedType : null;
 
     final description = json['description'];
     if (description != null && description is! String) {
@@ -254,8 +289,9 @@ class SchemaResolver {
       required = List<String>.from(rawRequired);
     }
 
-    final schema = Schema(
+    final schema = Schema._parsed(
       type: type,
+      typeUnion: typeUnion,
       description: description as String?,
       properties: json.containsKey('properties') ? properties : null,
       items: items,
@@ -342,24 +378,24 @@ class SchemaResolver {
     return segment.replaceAll('~1', '/').replaceAll('~0', '~');
   }
 
-  Schema _copyWithDescription(Schema schema, String description) => Schema(
-    type: schema.type,
-    description: description,
-    properties: schema.properties,
-    items: schema.items,
-    additionalProperties: schema.additionalProperties,
-    enum_: schema.enum_,
-    required: schema.required,
-    oneOf: schema.oneOf,
-    anyOf: schema.anyOf,
-    allOf: schema.allOf,
-  );
+  Schema _copyWithDescription(Schema schema, String description) =>
+      Schema._parsed(
+        type: schema._hasType ? schema.type : null,
+        typeUnion: schema.typeUnion,
+        description: description,
+        properties: schema.properties,
+        items: schema.items,
+        additionalProperties: schema.additionalProperties,
+        enum_: schema.enum_,
+        required: schema.required,
+        oneOf: schema.oneOf,
+        anyOf: schema.anyOf,
+        allOf: schema.allOf,
+      );
 
   void _validateEnum(Schema schema, String path) {
-    if (schema.enum_ == null || schema.type == null) return;
-    final types = schema.type is String
-        ? [schema.type as String]
-        : schema.type as List<String>;
+    if (schema.enum_ == null || !schema._hasType) return;
+    final types = schema.typeUnion ?? [schema.type];
     for (var i = 0; i < schema.enum_!.length; i++) {
       final value = schema.enum_![i];
       if (!types.any((type) => _valueMatchesType(value, type))) {
@@ -390,4 +426,22 @@ class SchemaResolver {
         return false;
     }
   }
+}
+
+/// Legacy global schema registry. Prefer [OpenTool.fromJson] or [SchemaResolver]
+/// so references stay scoped to their document.
+class SchemasSingleton {
+  static Map<String, dynamic> _definitions = const {};
+  static Map<String, Schema> _schemas = const {};
+
+  @Deprecated(
+    'Use OpenTool.fromJson or SchemaResolver for document-local refs.',
+  )
+  static void initInstance(Map<String, dynamic> schemasJson) {
+    _definitions = Map<String, dynamic>.from(schemasJson);
+    _schemas = SchemaResolver(_definitions).resolveAll();
+  }
+
+  @Deprecated('Use OpenTool.schemas or SchemaResolver for document-local refs.')
+  static Map<String, Schema> getInstance() => _schemas;
 }
