@@ -209,7 +209,14 @@ class Controller {
   Future<Response> load(Request request) async {
     try {
       final openTool = await tool.load();
-      final responseBody = openTool?.toJson() ?? JsonParserException().toJson();
+      if (openTool == null) {
+        return Response(
+          404,
+          body: jsonEncode(const ToolNotFoundException().toJson()),
+          headers: jsonHeaders,
+        );
+      }
+      final responseBody = openTool.toJson();
       return Response.ok(jsonEncode(responseBody), headers: jsonHeaders);
     } catch (e) {
       return Response.internalServerError(

@@ -137,6 +137,8 @@ Future<void> main() async {
 
 - Import `package:opentool_dart/opentool_schema.dart` when you only need the spec models.
 - Store OpenTool specs under `json/` or `example/json-example`. `OpenToolJsonLoader().loadFromFile(path)` builds the `OpenTool` tree and resolves `$ref` schemas; use `load(jsonString)` for remote inputs.
+- The signature parser supports `type` (including type arrays), `description`, `properties`, `items`, boolean or schema-valued `additionalProperties`, `enum`, `required`, `$ref` to `#/schemas/<name>`, and `oneOf`/`anyOf`/`allOf`. Unsupported schema keywords, missing references, and recursive references raise a path-aware `FormatException`.
+- `OpenToolClient.load()` returns `null` only when `/load` responds with the explicit `TOOL_NOT_FOUND` marker. Parsing and other request errors propagate to the caller.
 - Refer to the [OpenTool specification](https://github.com/opentool-hub/opentool-spec) for field semantics.
 
 ## Examples & Development

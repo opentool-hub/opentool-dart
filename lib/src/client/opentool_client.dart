@@ -213,13 +213,46 @@ class OpenToolClient extends Client {
 
   @override
   Future<OpenTool?> load() async {
+    late Response response;
     try {
-      final response = await dio.get('/load');
-      final data = response.data;
-      final parsed = data is Map<String, dynamic> ? data : jsonDecode(data);
-      return OpenTool.fromJson(parsed);
-    } catch (_) {
-      return null;
+      response = await dio.get(
+        '/load',
+        options: Options(responseType: ResponseType.plain),
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw OpenToolServerUnauthorizedException();
+      }
+      if (e.response?.statusCode == 404 &&
+          _isToolNotFoundResponse(e.response?.data)) {
+        return null;
+      }
+      if (e.response != null) {
+        throw OpenToolServerCallException(
+          'HTTP ${e.response?.statusCode} ${e.response?.data}',
+        );
+      }
+      throw OpenToolServerNoAccessException();
+    }
+
+    return OpenTool.fromJson(_decodeLoadObject(response.data));
+  }
+
+  Map<String, dynamic> _decodeLoadObject(Object? data) {
+    final decoded = data is String ? jsonDecode(data) : data;
+    if (decoded is Map<String, dynamic>) return decoded;
+    if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    throw const FormatException('/load response: expected a JSON object.');
+  }
+
+  bool _isToolNotFoundResponse(Object? data) {
+    try {
+      final body = _decodeLoadObject(data);
+      return body['code'] == ToolNotFoundException.code;
+    } on FormatException {
+      return false;
+    } on TypeError {
+      return false;
     }
   }
 

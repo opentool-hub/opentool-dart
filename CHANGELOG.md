@@ -1,3 +1,10 @@
+## 3.0.0
+
+- resolve local schema references per OpenTool document, including forward references
+- support union types, `oneOf`, `anyOf`, `allOf`, and schema-valued `additionalProperties`
+- report unsupported schema keywords and invalid references with their schema paths
+- propagate `/load` errors and return null only for an explicit tool-not-found response
+
 ## 2.0.1
 
 - default `Parameter.required` to `false` when omitted

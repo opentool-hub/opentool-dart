@@ -76,3 +76,18 @@ class JsonParserException implements Exception {
   @override
   String toString() => jsonEncode(this.toJson());
 }
+
+/// Returned by `/load` when the server has no OpenTool document for this tool.
+class ToolNotFoundException implements Exception {
+  static const String code = 'TOOL_NOT_FOUND';
+  static const String defaultMessage = 'Tool metadata not found';
+
+  final String message;
+
+  const ToolNotFoundException({this.message = defaultMessage});
+
+  Map<String, dynamic> toJson() => {'code': code, 'message': message};
+
+  @override
+  String toString() => jsonEncode(toJson());
+}

@@ -137,6 +137,8 @@ Future<void> main() async {
 
 - 仅需 Schema 能力时可直接导入 `package:opentool_dart/opentool_schema.dart`。
 - 规范文件建议放在 `json/` 或 `example/json-example`。`OpenToolJsonLoader().loadFromFile(path)` 会解析 `$ref` 并生成完整 `OpenTool` 对象，远程内容可用 `load(jsonString)`。
+- 签名解析器支持 `type`（包括类型数组）、`description`、`properties`、`items`、布尔值或 Schema 形式的 `additionalProperties`、`enum`、`required`、指向 `#/schemas/<name>` 的 `$ref`，以及 `oneOf`/`anyOf`/`allOf`。不支持的关键字、缺失引用和循环引用会抛出带路径的 `FormatException`。
+- `OpenToolClient.load()` 仅在 `/load` 返回明确的 `TOOL_NOT_FOUND` 标记时返回 `null`；解析错误及其他请求错误会传给调用方。
 - 字段含义请参考 [OpenTool 规范](https://github.com/opentool-hub/opentool-spec)。
 
 ## 示例与开发流程

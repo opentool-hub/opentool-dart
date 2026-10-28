@@ -6,21 +6,6 @@ part of 'function_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-FunctionModel _$FunctionModelFromJson(Map<String, dynamic> json) =>
-    FunctionModel(
-      name: json['name'] as String,
-      description: json['description'] as String,
-      parameters: (json['parameters'] as List<dynamic>)
-          .map((e) => Parameter.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      return_: json['return'] == null
-          ? null
-          : Return.fromJson(json['return'] as Map<String, dynamic>),
-      stream: (json['stream'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, Return.fromJson(e as Map<String, dynamic>)),
-      ),
-    );
-
 Map<String, dynamic> _$FunctionModelToJson(FunctionModel instance) =>
     <String, dynamic>{
       'name': instance.name,
