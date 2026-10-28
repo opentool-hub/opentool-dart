@@ -1,3 +1,7 @@
+## 2.1.1
+
+- keep the `/load` not-found marker internal to avoid conflicts with application exception names
+
 ## 2.1.0
 
 - resolve local schema references per OpenTool document, including forward references

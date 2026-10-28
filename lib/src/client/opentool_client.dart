@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'package:dio/dio.dart';
 import 'package:opentool_dart/opentool_server.dart';
+import '../load_protocol.dart';
 import 'exception.dart';
 
 abstract class Client {
@@ -248,7 +249,7 @@ class OpenToolClient extends Client {
   bool _isToolNotFoundResponse(Object? data) {
     try {
       final body = _decodeLoadObject(data);
-      return body['code'] == ToolNotFoundException.code;
+      return body['code'] == loadMetadataNotFoundCode;
     } on FormatException {
       return false;
     } on TypeError {

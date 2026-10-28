@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:shelf/shelf.dart';
-import '../tool/exception.dart';
+import '../load_protocol.dart';
 import '../tool/model.dart';
 import '../tool/tool.dart';
 import '../dto.dart';
@@ -212,7 +212,10 @@ class Controller {
       if (openTool == null) {
         return Response(
           404,
-          body: jsonEncode(const ToolNotFoundException().toJson()),
+          body: jsonEncode({
+            'code': loadMetadataNotFoundCode,
+            'message': loadMetadataNotFoundMessage,
+          }),
           headers: jsonHeaders,
         );
       }

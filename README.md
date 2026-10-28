@@ -34,7 +34,7 @@ Or update `pubspec.yaml` manually:
 
 ```yaml
 dependencies:
-  opentool_dart: ^2.1.0
+  opentool_dart: ^2.1.1
 ```
 
 Run `dart pub get` afterwards.

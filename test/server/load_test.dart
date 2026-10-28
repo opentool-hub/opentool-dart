@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:opentool_dart/opentool_server.dart';
 import 'package:opentool_dart/src/server/controller.dart';
 import 'package:opentool_dart/src/tool/tool.dart';
 import 'package:shelf/shelf.dart';
@@ -22,8 +21,8 @@ void main() {
 
       expect(response.statusCode, 404);
       expect(jsonDecode(await response.readAsString()), {
-        'code': ToolNotFoundException.code,
-        'message': ToolNotFoundException.defaultMessage,
+        'code': 'TOOL_NOT_FOUND',
+        'message': 'Tool metadata not found',
       });
     },
   );

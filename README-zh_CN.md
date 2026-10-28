@@ -34,7 +34,7 @@ dart pub add opentool_dart
 
 ```yaml
 dependencies:
-  opentool_dart: ^2.1.0
+  opentool_dart: ^2.1.1
 ```
 
 执行 `dart pub get` 同步依赖。
