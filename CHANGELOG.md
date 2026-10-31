@@ -1,3 +1,10 @@
+## 3.0.0
+
+- require Dart SDK 3.13 or later for the JSON Schema validation engine
+- support JSON Schema Draft 2020-12 parsing, references, and instance validation
+- preserve complete schema documents, boolean schemas, dialect metadata, and references
+- introduce breaking changes to the schema model; see the migration guide
+
 ## 2.1.1
 
 - keep the `/load` not-found marker internal to avoid conflicts with application exception names

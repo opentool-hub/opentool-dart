@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import 'schema.dart';
 
 part 'return.g.dart';
@@ -21,15 +22,20 @@ class Return {
     String path = 'return',
   }) {
     final rawSchema = json['schema'];
-    if (rawSchema is! Map<String, dynamic>) {
-      throw FormatException('$path.schema: expected a schema object.');
+    if (rawSchema is! Map<String, dynamic> && rawSchema is! bool) {
+      throw FormatException(
+        '$path.schema: expected a schema object or boolean schema.',
+      );
     }
     return Return(
       name: json['name'] as String,
       description: json['description'] as String?,
       schema:
-          schemaResolver?.parseSchema(rawSchema, path: '$path.schema') ??
-          Schema.fromJson(rawSchema),
+          schemaResolver?.parseSchema(
+            rawSchema as Object,
+            path: '$path.schema',
+          ) ??
+          Schema.fromJson(rawSchema as Object),
     );
   }
 

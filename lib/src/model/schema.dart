@@ -1,3 +1,7 @@
+import 'package:schema_engine/schema_engine.dart' as json_schema;
+
+typedef SchemaReferenceResolver = Object? Function(String uri);
+
 class SchemaType {
   static const String BOOLEAN = 'boolean';
   static const String INTEGER = 'integer';
@@ -18,126 +22,300 @@ class SchemaType {
   };
 }
 
-/// A supported subset of JSON Schema used by OpenTool function signatures.
-///
-/// [type] keeps the legacy single type value. Union schemas expose the complete
-/// set through [typeUnion]. Composition is supported through [oneOf], [anyOf],
-/// and [allOf].
-class Schema {
-  /// The legacy single type field. For a union, this is the first member.
-  /// Read [typeUnion] to get every member of a union type.
-  String type;
-  List<String>? typeUnion;
-  String? description;
-  Map<String, Schema>? properties;
-  Schema? items;
-
-  /// `additionalProperties` can be a boolean or a schema.
-  Object? additionalProperties;
-
-  List<Object?>? enum_;
-  List<String>? required;
-  List<Schema>? oneOf;
-  List<Schema>? anyOf;
-  List<Schema>? allOf;
-  final bool _hasType;
-
-  Schema({
-    required this.type,
-    this.typeUnion,
-    this.description,
-    this.properties,
-    this.items,
-    this.additionalProperties,
-    this.enum_,
-    this.required,
-    this.oneOf,
-    this.anyOf,
-    this.allOf,
-  }) : _hasType = true;
-
-  /// Whether the input schema contained a `type` keyword.
-  bool get hasType => _hasType;
-
-  Schema._parsed({
-    String? type,
-    this.typeUnion,
-    this.description,
-    this.properties,
-    this.items,
-    this.additionalProperties,
-    this.enum_,
-    this.required,
-    this.oneOf,
-    this.anyOf,
-    this.allOf,
-  }) : type = type ?? '',
-       _hasType = type != null;
-
-  factory Schema.fromJson(Map<String, dynamic> json) =>
-      SchemaResolver(SchemasSingleton._definitions).parseSchema(json);
-
-  Map<String, dynamic> toJson() {
-    final result = <String, dynamic>{};
-    if (typeUnion != null) {
-      result['type'] = typeUnion;
-    } else if (_hasType) {
-      result['type'] = type;
-    }
-    if (description != null) result['description'] = description;
-    if (properties != null) {
-      result['properties'] = properties!.map(
-        (key, value) => MapEntry(key, value.toJson()),
-      );
-    }
-    if (items != null) result['items'] = items!.toJson();
-    if (additionalProperties != null) {
-      result['additionalProperties'] = additionalProperties is Schema
-          ? (additionalProperties as Schema).toJson()
-          : additionalProperties;
-    }
-    if (enum_ != null) result['enum'] = enum_;
-    if (required != null) result['required'] = required;
-    if (oneOf != null) {
-      result['oneOf'] = oneOf!.map((schema) => schema.toJson()).toList();
-    }
-    if (anyOf != null) {
-      result['anyOf'] = anyOf!.map((schema) => schema.toJson()).toList();
-    }
-    if (allOf != null) {
-      result['allOf'] = allOf!.map((schema) => schema.toJson()).toList();
-    }
-    return result;
-  }
+class _SchemaUnset {
+  const _SchemaUnset();
 }
 
-/// Resolves local OpenTool schema references without shared global state.
-///
-/// Supported keywords are `type`, `description`, `properties`, `items`,
-/// `additionalProperties`, `enum`, `required`, `$ref`, `oneOf`, `anyOf`, and
-/// `allOf`. References must point to `#/schemas/<name>`. Recursive references
-/// are rejected with a path-aware [FormatException].
-class SchemaResolver {
-  static const Set<String> _supportedKeywords = {
-    r'$ref',
-    'type',
-    'description',
-    'properties',
-    'items',
-    'additionalProperties',
-    'enum',
-    'required',
-    'oneOf',
-    'anyOf',
-    'allOf',
-  };
+const _schemaUnset = _SchemaUnset();
 
+/// A JSON Schema node parsed with the declared dialect (2020-12 by default).
+///
+/// The original JSON value is retained so unsupported annotations and future
+/// vocabulary keywords survive a load/serialize cycle. Both object and boolean
+/// schemas are supported. Use [validate] to validate an instance.
+class Schema {
+  final Object _json;
+  final Object _engineSchema;
+  final Map<Uri, Object?> _resources;
+  final Map<bool?, json_schema.CompiledSchema> _validators;
+  final SchemaResolver? _resolver;
+
+  Schema._(
+    this._json,
+    this._engineSchema,
+    this._resources,
+    this._validators,
+    this._resolver,
+  );
+
+  /// Creates a schema from any JSON Schema object or boolean schema.
+  factory Schema.fromJson(Object json, {SchemaResolver? resolver}) =>
+      (resolver ?? SchemaResolver(SchemasSingleton._definitions)).parseSchema(
+        json,
+      );
+
+  /// Creates a schema using the former convenience constructor.
+  ///
+  /// In 3.0, [toJson] returns a JSON value because JSON Schema permits boolean
+  /// schemas as well as objects.
+  factory Schema({
+    required String type,
+    List<String>? typeUnion,
+    String? description,
+    Map<String, Schema>? properties,
+    Schema? items,
+    Object? additionalProperties,
+    List<Object?>? enum_,
+    List<String>? required,
+    List<Schema>? oneOf,
+    List<Schema>? anyOf,
+    List<Schema>? allOf,
+    num? minimum,
+    num? maximum,
+    num? exclusiveMinimum,
+    num? exclusiveMaximum,
+    num? multipleOf,
+    num? minLength,
+    num? maxLength,
+    String? pattern,
+    String? format,
+    num? minItems,
+    num? maxItems,
+    bool? uniqueItems,
+    num? minProperties,
+    num? maxProperties,
+    Object? constValue = _schemaUnset,
+    Object? defaultValue = _schemaUnset,
+  }) => Schema.fromJson({
+    'type': typeUnion ?? type,
+    if (description != null) 'description': description,
+    if (properties != null)
+      'properties': properties.map(
+        (key, value) => MapEntry(key, value.toJson()),
+      ),
+    if (items != null) 'items': items.toJson(),
+    if (additionalProperties is Schema)
+      'additionalProperties': additionalProperties.toJson()
+    else if (additionalProperties != null)
+      'additionalProperties': additionalProperties,
+    if (enum_ != null) 'enum': enum_,
+    if (required != null) 'required': required,
+    if (oneOf != null) 'oneOf': oneOf.map((schema) => schema.toJson()).toList(),
+    if (anyOf != null) 'anyOf': anyOf.map((schema) => schema.toJson()).toList(),
+    if (allOf != null) 'allOf': allOf.map((schema) => schema.toJson()).toList(),
+    if (minimum != null) 'minimum': minimum,
+    if (maximum != null) 'maximum': maximum,
+    if (exclusiveMinimum != null) 'exclusiveMinimum': exclusiveMinimum,
+    if (exclusiveMaximum != null) 'exclusiveMaximum': exclusiveMaximum,
+    if (multipleOf != null) 'multipleOf': multipleOf,
+    if (minLength != null) 'minLength': minLength,
+    if (maxLength != null) 'maxLength': maxLength,
+    if (pattern != null) 'pattern': pattern,
+    if (format != null) 'format': format,
+    if (minItems != null) 'minItems': minItems,
+    if (maxItems != null) 'maxItems': maxItems,
+    if (uniqueItems != null) 'uniqueItems': uniqueItems,
+    if (minProperties != null) 'minProperties': minProperties,
+    if (maxProperties != null) 'maxProperties': maxProperties,
+    if (!identical(constValue, _schemaUnset)) 'const': constValue,
+    if (!identical(defaultValue, _schemaUnset)) 'default': defaultValue,
+  });
+
+  /// Whether this node is a boolean schema (`true` or `false`).
+  bool get isBooleanSchema => _json is bool;
+
+  /// An immutable view of the original JSON Schema value.
+  Object get rawSchema => _deepUnmodifiable(_json);
+
+  /// The original schema value, preserving references and all keywords.
+  Object toJson() => _deepCopy(_json)!;
+
+  /// Validates an instance and returns structured errors and warnings.
+  SchemaValidationResult validate(Object? instance, {bool? validateFormats}) {
+    final errors = _validatorFor(validateFormats).errors(instance);
+    return SchemaValidationResult(
+      valid: errors.isEmpty,
+      errors: errors.map((error) => error.toString()).toList(),
+      warnings: const [],
+    );
+  }
+
+  bool isValid(Object? instance, {bool? validateFormats}) =>
+      _validatorFor(validateFormats).isValid(instance);
+
+  json_schema.CompiledSchema _validatorFor(bool? validateFormats) =>
+      _validators.putIfAbsent(validateFormats, () {
+        final resolver = _resolver;
+        if (resolver == null) {
+          return json_schema.JsonSchema.fromJson(_engineSchema).compile(
+            options: json_schema.SchemaOptions(
+              assertFormats: validateFormats,
+              resources: _resources,
+            ),
+          );
+        }
+        return resolver
+            ._compile(
+              _engineSchema,
+              validateFormats: validateFormats,
+              initialResources: _resources,
+            )
+            .validator;
+      });
+
+  /// Returns a keyword's original value, or `null` if it is absent or null.
+  Object? operator [](String keyword) {
+    if (_json is Map<String, dynamic> && _json.containsKey(keyword)) {
+      final value = _json[keyword];
+      return value == null ? null : _deepUnmodifiable(value);
+    }
+    final value = _schemaView[keyword];
+    return value == null ? null : _deepUnmodifiable(value);
+  }
+
+  bool get hasType => this['type'] != null;
+  String get type {
+    final value = _schemaView['type'];
+    if (value is String) return value;
+    if (value is List && value.isNotEmpty && value.first is String) {
+      return value.first as String;
+    }
+    return '';
+  }
+
+  List<String>? get typeUnion {
+    final value = _schemaView['type'];
+    return value is List ? List<String>.from(value) : null;
+  }
+
+  String? get description => this['description'] as String?;
+  Map<String, Schema>? get properties => _schemaMap('properties');
+  Schema? get items => _schema('items');
+  Object? get additionalProperties {
+    final value = this['additionalProperties'];
+    return value is bool
+        ? value
+        : value == null
+        ? null
+        : _wrap(value);
+  }
+
+  List<Object?>? get enum_ => _list<Object?>('enum');
+  List<String>? get required => _list<String>('required');
+  List<Schema>? get oneOf => _schemaList('oneOf');
+  List<Schema>? get anyOf => _schemaList('anyOf');
+  List<Schema>? get allOf => _schemaList('allOf');
+  num? get minimum => this['minimum'] as num?;
+  num? get maximum => this['maximum'] as num?;
+  num? get exclusiveMinimum => this['exclusiveMinimum'] as num?;
+  num? get exclusiveMaximum => this['exclusiveMaximum'] as num?;
+  num? get multipleOf => this['multipleOf'] as num?;
+  num? get minLength => this['minLength'] as num?;
+  num? get maxLength => this['maxLength'] as num?;
+  String? get pattern => this['pattern'] as String?;
+  String? get format => this['format'] as String?;
+  num? get minItems => this['minItems'] as num?;
+  num? get maxItems => this['maxItems'] as num?;
+  bool? get uniqueItems => this['uniqueItems'] as bool?;
+  num? get minProperties => this['minProperties'] as num?;
+  num? get maxProperties => this['maxProperties'] as num?;
+  Object? get constValue => this['const'];
+  Object? get defaultValue => this['default'];
+  bool get hasConstValue => _containsKey('const');
+  bool get hasDefaultValue => _containsKey('default');
+
+  bool _containsKey(String key) =>
+      _json is Map<String, dynamic> && _json.containsKey(key);
+
+  Map<String, dynamic> get _schemaView {
+    if (_json is! Map<String, dynamic>) return const {};
+    final result = <String, dynamic>{};
+    var current = _json;
+    var reference = current[r'$ref'];
+    final seen = <String>{};
+    while (reference is String &&
+        reference.startsWith('#/schemas/') &&
+        seen.add(reference)) {
+      final target = _resolver?._referencedSchema(reference);
+      if (target is! Map<String, dynamic>) break;
+      for (final entry in target.entries) {
+        result.putIfAbsent(entry.key, () => entry.value);
+      }
+      current = target;
+      reference = target[r'$ref'];
+    }
+    result.addAll(_json);
+    return result;
+  }
+
+  Schema? _schema(String key) {
+    final value = this[key];
+    return value == null ? null : _wrap(value);
+  }
+
+  Map<String, Schema>? _schemaMap(String key) {
+    final value = this[key];
+    if (value is! Map) return null;
+    return value.map(
+      (name, schema) => MapEntry(name.toString(), _wrap(schema)),
+    );
+  }
+
+  List<T>? _list<T>(String key) {
+    final value = this[key];
+    return value is List ? List<T>.from(value) : null;
+  }
+
+  List<Schema>? _schemaList(String key) {
+    final value = this[key];
+    if (value is! List) return null;
+    return value.map((child) => _wrap(child as Object)).toList();
+  }
+
+  Schema _wrap(Object value) =>
+      _resolver?.parseSchema(value) ?? Schema.fromJson(value);
+}
+
+/// Result of validating one JSON value against a [Schema].
+class SchemaValidationResult {
+  const SchemaValidationResult({
+    required this.valid,
+    required this.errors,
+    required this.warnings,
+  });
+
+  final bool valid;
+  bool get isValid => valid;
+  final List<String> errors;
+  final List<String> warnings;
+}
+
+/// Compiles JSON Schema documents and resolves OpenTool's legacy schema names.
+///
+/// Schemas default to Draft 2020-12. A `$schema` declaration selects a
+/// supported dialect. OpenTool references of the form `#/schemas/<name>` are
+/// adapted to a local resource provider; standard `$ref` and `$dynamicRef`
+/// values are left to the JSON Schema engine.
+class SchemaResolver {
   final Map<String, dynamic> _definitions;
+  final SchemaReferenceResolver? _referenceResolver;
   final Map<String, Schema> _resolved = {};
   final Set<String> _resolving = {};
 
   SchemaResolver([Map<String, dynamic>? definitions])
-    : _definitions = definitions ?? const {};
+    : this._(definitions ?? const {}, null);
+
+  SchemaResolver.withReferenceResolver({
+    Map<String, dynamic>? definitions,
+    SchemaReferenceResolver? referenceResolver,
+  }) : this._(definitions ?? const {}, referenceResolver);
+
+  SchemaResolver._(this._definitions, this._referenceResolver);
+
+  Object? _referencedSchema(String reference) {
+    final name = reference.substring('#/schemas/'.length).split('/').first;
+    return _definitions[name.replaceAll('~1', '/').replaceAll('~0', '~')];
+  }
 
   Map<String, Schema> resolveAll() {
     final result = <String, Schema>{};
@@ -147,8 +325,186 @@ class SchemaResolver {
     return result;
   }
 
-  Schema parseSchema(Map<String, dynamic> json, {String path = 'schema'}) =>
-      _parseSchema(json, path);
+  Schema parseSchema(Object json, {String path = 'schema'}) {
+    try {
+      _validateJsonValue(json, path);
+      _validateSchemaStructure(json, path);
+      final normalized = _normalize(json);
+      final compilation = _compile(normalized, path: path);
+      return Schema._(_deepCopy(json)!, normalized, compilation.resources, {
+        null: compilation.validator,
+      }, this);
+    } on FormatException catch (error) {
+      if (error.message.toString().startsWith(path)) rethrow;
+      throw FormatException('$path: ${error.message}');
+    } on json_schema.SchemaException catch (error) {
+      final location = error.schemaPath.isEmpty ? '' : '#${error.schemaPath}';
+      throw FormatException('$path$location: ${error.message}');
+    } on json_schema.ReferenceException catch (error) {
+      throw FormatException('$path: ${error.message} (${error.reference})');
+    } on Object catch (error) {
+      throw FormatException('$path: invalid JSON Schema: $error');
+    }
+  }
+
+  _SchemaCompilation _compile(
+    Object normalized, {
+    String path = 'schema',
+    bool? validateFormats,
+    Map<Uri, Object?> initialResources = const {},
+  }) {
+    final resources = Map<Uri, Object?>.of(initialResources);
+    for (final entry in _definitions.entries) {
+      final uri = Uri(
+        scheme: 'opentool-schema',
+        host: 'document',
+        pathSegments: ['schemas', entry.key],
+      );
+      resources.putIfAbsent(uri, () => _normalize(entry.value as Object));
+    }
+
+    final attemptedReferences = <Uri>{};
+    while (true) {
+      try {
+        final validator =
+            json_schema.JsonSchema.fromJson(
+              normalized,
+              draft: _selectDraft(normalized, resources),
+            ).compile(
+              options: json_schema.SchemaOptions(
+                assertFormats: validateFormats,
+                resources: resources,
+              ),
+            );
+        return _SchemaCompilation(
+          validator,
+          Map<Uri, Object?>.unmodifiable(resources),
+        );
+      } on json_schema.ReferenceException catch (error) {
+        final uri = error.reference.removeFragment();
+        final resolver = _referenceResolver;
+        if (resolver == null ||
+            resources.containsKey(uri) ||
+            !attemptedReferences.add(uri)) {
+          rethrow;
+        }
+        final external = resolver(uri.toString());
+        if (external == null || (external is! Map && external is! bool)) {
+          rethrow;
+        }
+        _validateJsonValue(external, '$path<$uri>');
+        resources[uri] = _normalize(external);
+      }
+    }
+  }
+
+  json_schema.SchemaDraft _selectDraft(
+    Object normalized,
+    Map<Uri, Object?> resources,
+  ) {
+    if (normalized is! Map<String, dynamic> ||
+        normalized[r'$schema'] is! String) {
+      return json_schema.SchemaDraft.draft202012;
+    }
+    var identifier = normalized[r'$schema'] as String;
+    final seen = <String>{};
+    while (seen.add(identifier)) {
+      try {
+        return json_schema.SchemaDraft.fromUri(identifier);
+      } on FormatException {
+        final uri = Uri.parse(identifier).removeFragment();
+        final resource = resources[uri];
+        if (resource is! Map<String, dynamic> ||
+            resource[r'$schema'] is! String) {
+          return json_schema.SchemaDraft.draft202012;
+        }
+        identifier = resource[r'$schema'] as String;
+      }
+    }
+    throw FormatException('schema.\$schema: cyclic meta-schema $identifier.');
+  }
+
+  void _validateSchemaStructure(Object? schema, String path) {
+    if (schema is bool) return;
+    if (schema is! Map) {
+      throw FormatException('$path: expected a schema object or boolean.');
+    }
+
+    if (schema.containsKey('type')) {
+      final type = schema['type'];
+      if (type is! String &&
+          (type is! List ||
+              type.isEmpty ||
+              type.any((value) => value is! String))) {
+        throw FormatException(
+          '$path.type: expected a type name or array of type names.',
+        );
+      }
+    }
+
+    for (final keyword in [r'$ref', r'$dynamicRef']) {
+      final reference = schema[keyword];
+      if (reference is String && reference.startsWith('#/schemas/')) {
+        final token = reference.substring('#/schemas/'.length).split('/').first;
+        final name = token.replaceAll('~1', '/').replaceAll('~0', '~');
+        if (!_definitions.containsKey(name)) {
+          throw FormatException(
+            '$path.$keyword: schema "$name" was not found.',
+          );
+        }
+      }
+    }
+
+    const schemaMapKeywords = {
+      r'$defs',
+      'definitions',
+      'properties',
+      'patternProperties',
+      'dependentSchemas',
+    };
+    const schemaListKeywords = {'allOf', 'anyOf', 'oneOf', 'prefixItems'};
+    const schemaKeywords = {
+      'additionalProperties',
+      'unevaluatedProperties',
+      'items',
+      'additionalItems',
+      'unevaluatedItems',
+      'contains',
+      'propertyNames',
+      'not',
+      'if',
+      'then',
+      'else',
+      'contentSchema',
+    };
+
+    for (final keyword in schemaMapKeywords) {
+      final value = schema[keyword];
+      if (value is Map) {
+        for (final entry in value.entries) {
+          _validateSchemaStructure(entry.value, '$path.$keyword.${entry.key}');
+        }
+      }
+    }
+    for (final keyword in schemaListKeywords) {
+      final value = schema[keyword];
+      if (value is List) {
+        for (var i = 0; i < value.length; i++) {
+          _validateSchemaStructure(value[i], '$path.$keyword[$i]');
+        }
+      }
+    }
+    for (final keyword in schemaKeywords) {
+      final value = schema[keyword];
+      if (value is Map || value is bool) {
+        _validateSchemaStructure(value, '$path.$keyword');
+      } else if (keyword == 'items' && value is List) {
+        for (var i = 0; i < value.length; i++) {
+          _validateSchemaStructure(value[i], '$path.items[$i]');
+        }
+      }
+    }
+  }
 
   Schema _resolveDefinition(String name, String path) {
     final cached = _resolved[name];
@@ -157,17 +513,12 @@ class SchemaResolver {
       throw FormatException('$path: schema "$name" was not found.');
     }
     if (!_resolving.add(name)) {
-      throw FormatException(
-        '$path: recursive schema reference "#/schemas/$name" is not supported.',
-      );
+      // Recursive references are valid in modern JSON Schema. Return a raw
+      // schema wrapper here; the validator resolves the reference at runtime.
+      return parseSchema(_definitions[name], path: path);
     }
-
     try {
-      final raw = _definitions[name];
-      if (raw is! Map<String, dynamic>) {
-        throw FormatException('$path: expected a schema object.');
-      }
-      final schema = _parseSchema(raw, path);
+      final schema = parseSchema(_definitions[name], path: path);
       _resolved[name] = schema;
       return schema;
     } finally {
@@ -175,257 +526,141 @@ class SchemaResolver {
     }
   }
 
-  Schema _parseSchema(Map<String, dynamic> json, String path) {
-    for (final keyword in json.keys) {
-      if (!_supportedKeywords.contains(keyword)) {
-        throw FormatException('$path: unsupported schema keyword "$keyword".');
-      }
-    }
-
-    if (json.containsKey(r'$ref')) {
-      final rawRef = json[r'$ref'];
-      if (rawRef is! String) {
-        throw FormatException('$path.\$ref: expected a string reference.');
-      }
-      final name = _schemaNameFromRef(rawRef, '$path.\$ref');
-      final target = _resolveDefinition(name, '$path.\$ref');
-      final siblingJson = <String, dynamic>{
-        for (final entry in json.entries)
-          if (entry.key != r'$ref' && entry.key != 'description')
-            entry.key: entry.value,
+  Object _normalize(Object raw) {
+    final normalized = _normalizeValue(raw, 'schema');
+    if (normalized is Map && !normalized.containsKey(r'$schema')) {
+      return <String, dynamic>{
+        r'$schema': json_schema.SchemaDraft.draft202012.metaSchemaUri,
+        ...normalized,
       };
-      final description = json['description'];
-      if (description != null && description is! String) {
-        throw FormatException('$path.description: expected a string.');
-      }
-      if (siblingJson.isEmpty) {
-        if (description == null) return target;
-        return _copyWithDescription(target, description as String);
-      }
-      return Schema._parsed(
-        description: description as String? ?? target.description,
-        allOf: [target, _parseSchema(siblingJson, path)],
-      );
     }
+    return normalized!;
+  }
 
-    final rawType = json['type'];
-    final parsedType = rawType == null
-        ? null
-        : _parseType(rawType, '$path.type');
-    final type = parsedType is String
-        ? parsedType
-        : parsedType is List<String>
-        ? parsedType.first
-        : null;
-    final typeUnion = parsedType is List<String> ? parsedType : null;
-
-    final description = json['description'];
-    if (description != null && description is! String) {
-      throw FormatException('$path.description: expected a string.');
+  Object? _normalizeValue(Object? value, String path) {
+    if (value is List) {
+      return [
+        for (var i = 0; i < value.length; i++)
+          _normalizeValue(value[i], '$path[$i]'),
+      ];
     }
-
-    final properties = <String, Schema>{};
-    if (json.containsKey('properties')) {
-      final rawProperties = json['properties'];
-      if (rawProperties is! Map<String, dynamic>) {
-        throw FormatException('$path.properties: expected an object.');
-      }
-      for (final entry in rawProperties.entries) {
+    if (value is Map) {
+      final result = <String, dynamic>{};
+      for (final entry in value.entries) {
+        if (entry.key is! String) {
+          throw FormatException('$path: object keys must be strings.');
+        }
+        final key = entry.key as String;
         final child = entry.value;
-        if (child is! Map<String, dynamic>) {
-          throw FormatException(
-            '$path.properties.${entry.key}: expected a schema object.',
-          );
-        }
-        properties[entry.key] = _parseSchema(
-          child,
-          '$path.properties.${entry.key}',
-        );
-      }
-    }
-
-    Schema? items;
-    if (json.containsKey('items')) {
-      final rawItems = json['items'];
-      if (rawItems is! Map<String, dynamic>) {
-        throw FormatException('$path.items: expected a schema object.');
-      }
-      items = _parseSchema(rawItems, '$path.items');
-    }
-
-    Object? additionalProperties;
-    if (json.containsKey('additionalProperties')) {
-      final rawAdditionalProperties = json['additionalProperties'];
-      if (rawAdditionalProperties is bool) {
-        additionalProperties = rawAdditionalProperties;
-      } else if (rawAdditionalProperties is Map<String, dynamic>) {
-        additionalProperties = _parseSchema(
-          rawAdditionalProperties,
-          '$path.additionalProperties',
-        );
-      } else {
-        throw FormatException(
-          '$path.additionalProperties: expected a boolean or schema object.',
-        );
-      }
-    }
-
-    List<Object?>? enumValues;
-    if (json.containsKey('enum')) {
-      final rawEnum = json['enum'];
-      if (rawEnum is! List) {
-        throw FormatException('$path.enum: expected an array.');
-      }
-      enumValues = List<Object?>.from(rawEnum);
-    }
-
-    List<String>? required;
-    if (json.containsKey('required')) {
-      final rawRequired = json['required'];
-      if (rawRequired is! List ||
-          rawRequired.any((value) => value is! String)) {
-        throw FormatException('$path.required: expected an array of strings.');
-      }
-      required = List<String>.from(rawRequired);
-    }
-
-    final schema = Schema._parsed(
-      type: type,
-      typeUnion: typeUnion,
-      description: description as String?,
-      properties: json.containsKey('properties') ? properties : null,
-      items: items,
-      additionalProperties: additionalProperties,
-      enum_: enumValues,
-      required: required,
-      oneOf: _parseComposition(json, 'oneOf', path),
-      anyOf: _parseComposition(json, 'anyOf', path),
-      allOf: _parseComposition(json, 'allOf', path),
-    );
-    _validateEnum(schema, path);
-    return schema;
-  }
-
-  List<Schema>? _parseComposition(
-    Map<String, dynamic> json,
-    String keyword,
-    String path,
-  ) {
-    if (!json.containsKey(keyword)) return null;
-    final value = json[keyword];
-    if (value is! List || value.isEmpty) {
-      throw FormatException(
-        '$path.$keyword: expected a non-empty array of schemas.',
-      );
-    }
-    final result = <Schema>[];
-    for (var i = 0; i < value.length; i++) {
-      final child = value[i];
-      if (child is! Map<String, dynamic>) {
-        throw FormatException('$path.$keyword[$i]: expected a schema object.');
-      }
-      result.add(_parseSchema(child, '$path.$keyword[$i]'));
-    }
-    return result;
-  }
-
-  Object _parseType(Object rawType, String path) {
-    if (rawType is String) {
-      if (!SchemaType.values.contains(rawType)) {
-        throw FormatException(
-          '$path: unsupported JSON Schema type "$rawType".',
-        );
-      }
-      return rawType;
-    }
-    if (rawType is List) {
-      if (rawType.isEmpty || rawType.any((value) => value is! String)) {
-        throw FormatException(
-          '$path: expected a type name or non-empty array of type names.',
-        );
-      }
-      final types = List<String>.from(rawType);
-      for (final value in types) {
-        if (!SchemaType.values.contains(value)) {
-          throw FormatException(
-            '$path: unsupported JSON Schema type "$value".',
+        if ((key == r'$ref' || key == r'$dynamicRef') && child is String) {
+          result[key] = _normalizeOpenToolReference(child);
+        } else {
+          result[key] = _normalizeIntegerConstraint(
+            key,
+            _normalizeValue(child, '$path.$key'),
           );
         }
       }
-      if (types.toSet().length != types.length) {
-        throw FormatException('$path: duplicate types are not supported.');
-      }
-      return types;
+      return result;
     }
-    throw FormatException(
-      '$path: expected a type name or array of type names.',
-    );
+    if (value == null || value is String || value is bool) return value;
+    if (value is num && value.isFinite) return value;
+    throw FormatException('$path: expected a JSON value.');
   }
 
-  String _schemaNameFromRef(String ref, String path) {
+  Object? _normalizeIntegerConstraint(String keyword, Object? value) {
+    const keywords = {
+      'minLength',
+      'maxLength',
+      'minItems',
+      'maxItems',
+      'minContains',
+      'maxContains',
+      'minProperties',
+      'maxProperties',
+    };
+    if (keywords.contains(keyword) &&
+        value is double &&
+        value.isFinite &&
+        value == value.truncateToDouble()) {
+      return value.toInt();
+    }
+    return value;
+  }
+
+  void _validateJsonValue(Object? value, String path) {
+    if (value == null || value is String || value is bool) return;
+    if (value is num) {
+      if (!value.isFinite) {
+        throw FormatException('$path: JSON numbers must be finite.');
+      }
+      return;
+    }
+    if (value is List) {
+      for (var i = 0; i < value.length; i++) {
+        _validateJsonValue(value[i], '$path[$i]');
+      }
+      return;
+    }
+    if (value is Map) {
+      for (final entry in value.entries) {
+        if (entry.key is! String) {
+          throw FormatException('$path: object keys must be strings.');
+        }
+        _validateJsonValue(entry.value, '$path.${entry.key}');
+      }
+      return;
+    }
+    throw FormatException('$path: expected a JSON value.');
+  }
+
+  String _normalizeOpenToolReference(String reference) {
     const prefix = '#/schemas/';
-    if (!ref.startsWith(prefix)) {
-      throw FormatException(
-        '$path: unsupported reference "$ref"; expected #/schemas/<name>.',
-      );
-    }
-    final segment = ref.substring(prefix.length);
-    if (segment.isEmpty ||
-        segment.contains('/') ||
-        RegExp(r'~(?![01])').hasMatch(segment)) {
-      throw FormatException('$path: invalid schema reference "$ref".');
-    }
-    return segment.replaceAll('~1', '/').replaceAll('~0', '~');
+    if (!reference.startsWith(prefix)) return reference;
+    final parts = reference.substring(prefix.length).split('/');
+    if (parts.isEmpty || parts.first.isEmpty) return reference;
+    final name = parts.first.replaceAll('~1', '/').replaceAll('~0', '~');
+    final rest = parts.skip(1).join('/');
+    return Uri(
+      scheme: 'opentool-schema',
+      host: 'document',
+      pathSegments: ['schemas', name],
+      fragment: rest.isEmpty ? null : '/$rest',
+    ).toString();
   }
+}
 
-  Schema _copyWithDescription(Schema schema, String description) =>
-      Schema._parsed(
-        type: schema._hasType ? schema.type : null,
-        typeUnion: schema.typeUnion,
-        description: description,
-        properties: schema.properties,
-        items: schema.items,
-        additionalProperties: schema.additionalProperties,
-        enum_: schema.enum_,
-        required: schema.required,
-        oneOf: schema.oneOf,
-        anyOf: schema.anyOf,
-        allOf: schema.allOf,
-      );
+class _SchemaCompilation {
+  const _SchemaCompilation(this.validator, this.resources);
 
-  void _validateEnum(Schema schema, String path) {
-    if (schema.enum_ == null || !schema._hasType) return;
-    final types = schema.typeUnion ?? [schema.type];
-    for (var i = 0; i < schema.enum_!.length; i++) {
-      final value = schema.enum_![i];
-      if (!types.any((type) => _valueMatchesType(value, type))) {
-        throw FormatException(
-          '$path.enum[$i]: value "$value" does not match schema type ${types.join(' or ')}.',
-        );
-      }
-    }
+  final json_schema.CompiledSchema validator;
+  final Map<Uri, Object?> resources;
+}
+
+Object? _deepCopy(Object? value) {
+  if (value is Map) {
+    return <String, dynamic>{
+      for (final entry in value.entries)
+        entry.key as String: _deepCopy(entry.value),
+    };
   }
-
-  bool _valueMatchesType(Object? value, String type) {
-    switch (type) {
-      case SchemaType.STRING:
-        return value is String;
-      case SchemaType.INTEGER:
-        return value is int;
-      case SchemaType.NUMBER:
-        return value is num;
-      case SchemaType.BOOLEAN:
-        return value is bool;
-      case SchemaType.NULL:
-        return value == null;
-      case SchemaType.ARRAY:
-        return value is List;
-      case SchemaType.OBJECT:
-        return value is Map;
-      default:
-        return false;
-    }
+  if (value is List) return value.map(_deepCopy).toList();
+  if (value == null || value is String || value is num || value is bool) {
+    return value;
   }
+  throw FormatException('Expected a JSON value, got ${value.runtimeType}.');
+}
+
+Object _deepUnmodifiable(Object value) {
+  if (value is Map) {
+    return Map.unmodifiable(
+      value.map((key, entry) => MapEntry(key, _deepUnmodifiable(entry))),
+    );
+  }
+  if (value is List) {
+    return List.unmodifiable(value.map((child) => _deepUnmodifiable(child)));
+  }
+  return value;
 }
 
 /// Legacy global schema registry. Prefer [OpenTool.fromJson] or [SchemaResolver]

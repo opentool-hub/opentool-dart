@@ -19,7 +19,7 @@ OpenTool SDK for Dart ships the building blocks required to host or consume Open
 
 ## Requirements
 
-- Dart SDK `>=3.8.0 <4.0.0`
+- Dart SDK `>=3.13.0 <4.0.0`
 - Optional: API keys for Bearer auth if you enable `--opentoolServerApiKeys`.
 
 ## Installation
@@ -34,10 +34,12 @@ Or update `pubspec.yaml` manually:
 
 ```yaml
 dependencies:
-  opentool_dart: ^2.1.1
+  opentool_dart: ^3.0.0
 ```
 
 Run `dart pub get` afterwards.
+
+See [MIGRATION.md](MIGRATION.md) for schema API changes in version 3.0.0.
 
 ## Quick Start
 

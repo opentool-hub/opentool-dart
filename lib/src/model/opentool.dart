@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import 'function_model.dart';
 import 'info.dart';
 import 'server.dart';
@@ -26,12 +27,18 @@ class OpenTool {
     this.schemas,
   });
 
-  factory OpenTool.fromJson(Map<String, dynamic> json) {
+  factory OpenTool.fromJson(
+    Map<String, dynamic> json, {
+    SchemaReferenceResolver? schemaReferenceResolver,
+  }) {
     final rawSchemas = json['schemas'];
     if (rawSchemas != null && rawSchemas is! Map<String, dynamic>) {
       throw const FormatException('schemas: expected an object.');
     }
-    final schemaResolver = SchemaResolver(rawSchemas as Map<String, dynamic>?);
+    final schemaResolver = SchemaResolver.withReferenceResolver(
+      definitions: rawSchemas as Map<String, dynamic>?,
+      referenceResolver: schemaReferenceResolver,
+    );
     final parsedSchemas = rawSchemas == null
         ? null
         : schemaResolver.resolveAll();

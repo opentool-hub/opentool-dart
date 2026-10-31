@@ -19,7 +19,7 @@ OpenTool 的 Dart SDK 提供搭建或消费 OpenTool Tool 所需的全部积木�
 
 ## 环境要求
 
-- Dart SDK `>=3.8.0 <4.0.0`
+- Dart SDK `>=3.13.0 <4.0.0`
 - 如需启用 HTTP Bearer 校验，可通过 `--opentoolServerApiKeys` 传入 API Key。
 
 ## 安装
@@ -34,7 +34,7 @@ dart pub add opentool_dart
 
 ```yaml
 dependencies:
-  opentool_dart: ^2.1.1
+  opentool_dart: ^3.0.0
 ```
 
 执行 `dart pub get` 同步依赖。

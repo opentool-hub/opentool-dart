@@ -1,10 +1,10 @@
 name: opentool_dart
-description: OpenTool client and server SDK for Dart, providing a JSON Spec Parser.
-version: 2.1.1
+description: OpenTool client and server SDK for Dart with JSON Schema 2020-12 support.
+version: 3.0.0
 repository: https://github.com/opentool-hub/opentool-dart
 
 environment:
-  sdk: ">=3.8.0 <4.0.0"
+  sdk: ">=3.13.0 <4.0.0"
 
 dependencies:
   args: ^2.7.0
@@ -12,6 +12,7 @@ dependencies:
   shelf: ^1.4.2
   shelf_router: ^1.1.4
   dio: ^5.8.0+1
+  schema_engine: ^1.0.0
 
 dev_dependencies:
   build_runner: ^2.6.0
